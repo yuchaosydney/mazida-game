@@ -28,10 +28,11 @@ function create() {
   car.top_left = new Array(car.x,car.y,0);
   car.top_right = new Array(car.x + car_width, car.y,0);
   car.center_point = new Array(car.top_left[0] + car_width/2,car.top_left[1] + car_height/2,0);//(center_x,centery_y, angle) 
-  car.top_left[2] = Math.atan2(car.center_point[1] - car.top_left[1],car.top_left[0] - car.center_point[0]); 
-  car.top_right[2] = Math.atan2(car.center_point[1] - car.top_right[1],car.top_right[0] - car.center_point[0]); 
-  console.log(car.top_right[2]);
-  console.log((car.center_point[1] + car_radius*Math.cos(car.top_right[2])));
+  car.top_left[2] = Math.atan2(car.top_left[0] - car.center_point[0],car.center_point[1] - car.top_left[1]); 
+  car.top_right[2] = Math.atan2(car.top_right[0] - car.center_point[0],car.center_point[1] - car.top_right[1]); 
+  console.log(Math.cos(car.top_left[2] + Math.PI));
+  console.log((car.center_point[0] + car_radius*Math.sin(car.top_left[2])));
+  console.log((car.center_point[1] - car_radius*Math.cos(car.top_right[2] + Math.PI/2)));
   
   game.physics.enable(com_car, Phaser.Physics.ARCADE);
   com_car.body.collideWorldBounds = true;
