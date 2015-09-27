@@ -1,5 +1,8 @@
 var game = new Phaser.Game(1000, 700, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
 
+var TO_RADIANS = Math.PI/180;
+var speed = 0.4;
+var maxSpeed = 4;
 var car;
 
 function preload() {
@@ -10,21 +13,23 @@ function preload() {
 function create() {
   game.add.image(0, 0, 'track-hit');
   car = game.add.sprite(0, 0, 'car');
-  game.physics.enable(car, Phaser.Physics.ARCADE);
-  car.body.velocity.x=150;
+  car.anchor.setTo(-10,-10);
+  car.rotationStep = 4;
+  car.rotation = 350;
 }
 
 function update() {
   
   if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
   {
-     console.log("left"); 
+    steerLeft(car);
   }
   else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
   {
-     console.log("right"); 
-      
+    steerRight(car);
   }
+
+  moveCar(car);
 }
 
 
@@ -33,6 +38,14 @@ function update() {
  *
  *useful algrithoms
  **/
+
+function moveCar(car) {
+  var speedAxis = speedXY(car.rotation, speed);
+  
+  car.x += speedAxis.x;
+  car.y += speedAxis.y;
+}
+
 function speedXY (rotation, speed) {
 	return {
 		x: Math.sin(rotation * TO_RADIANS) * speed,
@@ -40,14 +53,10 @@ function speedXY (rotation, speed) {
 	};
 }
 
-function steerLeft () {
-  if (this.isMoving()){
-    this.rotation -= this.rotationStep * (this.speed/this.maxSpeed);
-  }
+function steerLeft(car){
+  car.rotation -= car.rotationStep * (speed/maxSpeed);
 }
 
-function steerRight(){
-  if (this.isMoving()){
-    this.rotation += this.rotationStep * (this.speed/this.maxSpeed);
-  }
+function steerRight(car){
+  car.rotation += car.rotationStep * (speed/maxSpeed);
 }
