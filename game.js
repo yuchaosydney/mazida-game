@@ -1,7 +1,7 @@
 var game = new Phaser.Game(1000, 700, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
 
 var TO_RADIANS = Math.PI/180;
-var speed = 0.4;
+var speed = 1;
 var maxSpeed = 4;
 var car;
 
@@ -12,10 +12,10 @@ function preload() {
 
 function create() {
   game.add.image(0, 0, 'track-hit');
-  car = game.add.sprite(0, 0, 'car');
-  car.anchor.setTo(-10,-10);
+  car = game.add.sprite(500,500, 'car');
+  car.anchor.setTo(0.5,0.5);
   car.rotationStep = 4;
-  car.rotation = 350;
+  car.angle = 0;
 }
 
 function update() {
@@ -40,23 +40,22 @@ function update() {
  **/
 
 function moveCar(car) {
-  var speedAxis = speedXY(car.rotation, speed);
-  
+  var speedAxis = speedXY(car.angle, speed);
   car.x += speedAxis.x;
   car.y += speedAxis.y;
 }
 
 function speedXY (rotation, speed) {
-	return {
+  return {
 		x: Math.sin(rotation * TO_RADIANS) * speed,
 		y: Math.cos(rotation * TO_RADIANS) * speed * -1,
 	};
 }
 
 function steerLeft(car){
-  car.rotation -= car.rotationStep * (speed/maxSpeed);
+  car.angle -= car.rotationStep * (speed/maxSpeed);
 }
 
 function steerRight(car){
-  car.rotation += car.rotationStep * (speed/maxSpeed);
+  car.angle += car.rotationStep * (speed/maxSpeed);
 }
