@@ -1,9 +1,11 @@
-var game = new Phaser.Game(1000, 700, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
+var game = new Phaser.Game(1140, 801, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
 
-var bg, bitBg;
+var counter = 0;
+var bg,ai_bg, bitBg, ai_bit_bg;
 var TO_RADIANS = Math.PI/180;
-var slow_speed = 1;
-var normal_speed = 2;
+var slow_speed = 0.5;
+var normal_speed = 1.5;
+var com_speed = 1.4;
 var maxSpeed = 4;
 var car;
 var com_car;
@@ -13,16 +15,19 @@ var car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_hei
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
+  game.load.image('ai-map', 'assets/ai_map.png');
   game.load.image('car', 'assets/car.png');
 }
 
 function create() {
+  ai_bg = game.add.image(0, 0, 'ai-map');
   bg = game.add.image(0, 0, 'track-hit');
   bitBg = game.make.bitmapData();
   bitBg.load(bg);
-  getRgbByXY(500,600);
-  car = game.add.sprite(0,0, 'car');
-  com_car = game.add.sprite(600,500, 'car');
+  ai_bit_bg = game.make.bitmapData();
+  ai_bit_bg.load(ai_bg);
+
+  car = game.add.sprite(1000,550, 'car');
   
   game.physics.enable(car, Phaser.Physics.ARCADE);
   car.body.collideWorldBounds = true;
@@ -40,14 +45,21 @@ function create() {
   car.top_right.angle = Math.atan2(car.top_right.x - car.center_point.x,car.center_point.y - car.top_right.y); 
  
   
+  com_car = game.add.sprite(1000,500, 'car');
   game.physics.enable(com_car, Phaser.Physics.ARCADE);
   com_car.body.collideWorldBounds = true;
   com_car.body.bounce.setTo(1,1); 
-
   
   com_car.anchor.setTo(0.5,0.5);
   com_car.rotationStep = 4;
   com_car.angle = 0;
+  com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
+  com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
+  com_car.speed = com_speed; 
+
+  com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y); 
+  com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
+  //create counter
 }
 
 function update() {
@@ -59,30 +71,49 @@ function update() {
   else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
   {
     steerRight(car);
+  }else if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+    if(car.speed < maxSpeed) {
+      console.log("boost----"+car.speed);
+      car.speed += 0.1; 
+    } 
   }
   car_top_left_point_update(car);
   car_top_right_point_update(car);
+  car_top_left_point_update(com_car);
+  car_top_right_point_update(com_car);
+  
   //stear cars
+  // if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
+  //   car.rotationStep = 128;
+  //   steerRight(car); 
+  // }
   
-  if(getRgbByXY(car.top_left.x,car.top_left.y) == "#000000") {
-    car.rotationStep = 64;
-    steerRight(car); 
-  }
+  // if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000") {
+  //   car.rotationStep = 128;
+  //   steerLeft(car); 
+  // }
   
-  if(getRgbByXY(car.top_right.x,car.top_right.y) == "#000000") {
-    car.rotationStep = 64;
-    steerLeft(car); 
-  }
-  
-  if(getRgbByXY(car.top_right.x,car.top_right.y) == "#000000" && getRgbByXY(car.top_left.x,car.top_left.y) == "#000000") {
+  if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000" || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
     car.speed = slow_speed; 
-  }else {
-    car.speed = normal_speed; 
   }
+
+  //computer cars
+  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#ce470d") {
+    com_car.rotationStep = 16;
+    steerRight(com_car); 
+  }
+  
+  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#9cce4d") {
+    com_car.rotationStep = 16;
+    steerLeft(com_car); 
+  }
+  //computer cars
   
   moveCar(car);
-  //moveCar(com_car);
+  moveCar(com_car);
 }
+
+
 
 function render() {
 
@@ -102,6 +133,7 @@ function moveCar(car) {
   var speedAxis = speedXY(car.angle, car.speed);
   car.x += speedAxis.x;
   car.y += speedAxis.y;
+  car.distance ++;
 }
 
 function speedXY (rotation, speed) {
@@ -132,7 +164,12 @@ function car_top_right_point_update(car) {
 }
 
 //return hex color format
-function getRgbByXY(x,y) {
+function getRgbByXYMainMap(x,y) {
   var rgbObj = bitBg.getPixelRGB(Math.round(x), Math.round(y));
+  return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
+}
+
+function getRgbByXYAIMap(x,y) {
+  var rgbObj = ai_bit_bg.getPixelRGB(Math.round(x), Math.round(y));
   return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
 }
