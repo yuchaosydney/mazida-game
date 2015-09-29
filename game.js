@@ -71,10 +71,13 @@ function update() {
   else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
   {
     steerRight(car);
-  }else if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+  }else if(game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
     if(car.speed < maxSpeed) {
-      console.log("boost----"+car.speed);
       car.speed += 0.1; 
+    } 
+  }else if(game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+    if(car.speed > 0) {
+      car.speed -= 0.1; 
     } 
   }
   car_top_left_point_update(car);
