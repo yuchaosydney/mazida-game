@@ -2,7 +2,8 @@ var game = new Phaser.Game(1000, 700, Phaser.CANVAS, 'game',{ preload: preload, 
 
 var bg, bitBg;
 var TO_RADIANS = Math.PI/180;
-var speed = 1;
+var slow_speed = 1;
+var normal_speed = 2;
 var maxSpeed = 4;
 var car;
 var com_car;
@@ -20,7 +21,7 @@ function create() {
   bitBg = game.make.bitmapData();
   bitBg.load(bg);
   getRgbByXY(500,600);
-  car = game.add.sprite(500,650, 'car');
+  car = game.add.sprite(0,0, 'car');
   com_car = game.add.sprite(600,500, 'car');
   
   game.physics.enable(car, Phaser.Physics.ARCADE);
@@ -31,6 +32,7 @@ function create() {
   car.angle = 0;
   car.top_left = {x:car.x,y:car.y,angle:0};
   car.top_right = {x:car.x + car_width,y:car.y,angle:0};
+  car.speed = normal_speed; 
 
   car.center_point = {x:car.x + car_width/2,y:car.y + car_height/2};
 
@@ -60,7 +62,25 @@ function update() {
   }
   car_top_left_point_update(car);
   car_top_right_point_update(car);
-  //moveCar(car);
+  //stear cars
+  
+  if(getRgbByXY(car.top_left.x,car.top_left.y) == "#000000") {
+    car.rotationStep = 64;
+    steerRight(car); 
+  }
+  
+  if(getRgbByXY(car.top_right.x,car.top_right.y) == "#000000") {
+    car.rotationStep = 64;
+    steerLeft(car); 
+  }
+  
+  if(getRgbByXY(car.top_right.x,car.top_right.y) == "#000000" && getRgbByXY(car.top_left.x,car.top_left.y) == "#000000") {
+    car.speed = slow_speed; 
+  }else {
+    car.speed = normal_speed; 
+  }
+  
+  moveCar(car);
   //moveCar(com_car);
 }
 
@@ -79,7 +99,7 @@ function render() {
  **/
 
 function moveCar(car) {
-  var speedAxis = speedXY(car.angle, speed);
+  var speedAxis = speedXY(car.angle, car.speed);
   car.x += speedAxis.x;
   car.y += speedAxis.y;
 }
@@ -92,25 +112,27 @@ function speedXY (rotation, speed) {
 }
 
 function steerLeft(car){
-  car.angle -= car.rotationStep * (speed/maxSpeed);
+  car.angle -= car.rotationStep * (car.speed/maxSpeed);
+  car.rotationStep = 4;
 }
 
 function steerRight(car){
-  car.angle += car.rotationStep * (speed/maxSpeed);
+  car.angle += car.rotationStep * (car.speed/maxSpeed);
+  car.rotationStep = 4;
 }
 
 function car_top_left_point_update(car) {
-  car.top_left.x = car.center_point.x + car_radius*Math.sin(car.top_left.x + car.angle); 
-  car.top_left.y = car.center_point.y + car_radius*Math.cos(car.top_left.y + car.angle)*-1; 
+  car.top_left.x = car.x + car_radius*Math.sin((car.top_left.angle + car.angle)*TO_RADIANS); 
+  car.top_left.y = car.y + car_radius*Math.cos((car.top_left.angle + car.angle)*TO_RADIANS)*-1; 
 }
 
 function car_top_right_point_update(car) {
-  car.top_right.x = car.center_point.x + car_radius*Math.sin(car.top_right.x + car.angle); 
-  car.top_right.y = car.center_point.y + car_radius*Math.cos(car.top_right.y + car.angle)*-1;
+  car.top_right.x = car.x + car_radius*Math.sin((car.top_right.angle + car.angle)*TO_RADIANS); 
+  car.top_right.y = car.y + car_radius*Math.cos((car.top_right.angle + car.angle)*TO_RADIANS)*-1;
 }
 
 //return hex color format
 function getRgbByXY(x,y) {
-  var rgbObj = bitBg.getPixelRGB(x, y);
+  var rgbObj = bitBg.getPixelRGB(Math.round(x), Math.round(y));
   return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
 }
