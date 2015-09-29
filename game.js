@@ -1,4 +1,4 @@
-var game = new Phaser.Game(1140, 801, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
 
 var counter = 0;
 var bg,ai_bg, bitBg, ai_bit_bg;
@@ -20,6 +20,9 @@ function preload() {
 }
 
 function create() {
+  
+  game.world.setBounds(0, 0, 1140, 801);
+
   ai_bg = game.add.image(0, 0, 'ai-map');
   bg = game.add.image(0, 0, 'track-hit');
   bitBg = game.make.bitmapData();
@@ -43,7 +46,7 @@ function create() {
 
   car.top_left.angle = Math.atan2(car.top_left.x - car.center_point.x,car.center_point.y - car.top_left.y); 
   car.top_right.angle = Math.atan2(car.top_right.x - car.center_point.x,car.center_point.y - car.top_right.y); 
- 
+ game.camera.follow(car);
   
   com_car = game.add.sprite(1000,500, 'car');
   game.physics.enable(com_car, Phaser.Physics.ARCADE);
