@@ -1,17 +1,24 @@
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
+var WINDOW_WIDTH = $(window).width();
+var WINDOW_HEIGHT = $(window).height();
+var isTouching = false;
+var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
 
 var counter = 0;
 var bg,ai_bg, bitBg, ai_bit_bg;
 var TO_RADIANS = Math.PI/180;
 var slow_speed = 0.5;
-var normal_speed = 1.5;
-var com_speed = 1.4;
+var normal_speed = 1;
+var com_speed = 1.5;
 var maxSpeed = 4;
 var car;
 var com_car;
 var car_width = 18;
 var car_height = 36;
 var car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_height/2));
+
+var accelerateTime = setInterval(function(){ 
+  car.speed += 0.1;
+}, 1000);
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
@@ -22,7 +29,8 @@ function preload() {
 function create() {
   
   game.world.setBounds(0, 0, 1140, 801);
-
+  game.input.addPointer();
+  
   ai_bg = game.add.image(0, 0, 'ai-map');
   bg = game.add.image(0, 0, 'track-hit');
   bitBg = game.make.bitmapData();
@@ -66,7 +74,16 @@ function create() {
 }
 
 function update() {
-
+ 
+  if(isTouching) {
+    if(game.input.pointer1.position.x > (WINDOW_WIDTH/2)) {
+      steerRight(car);
+    }else if(game.input.pointer1.position.x < (WINDOW_WIDTH/2)) {
+      steerLeft(car);
+    }
+  } 
+   
+  
   if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
   {
     steerLeft(car);
@@ -74,15 +91,8 @@ function update() {
   else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT))
   {
     steerRight(car);
-  }else if(game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
-    if(car.speed < maxSpeed) {
-      car.speed += 0.1; 
-    } 
-  }else if(game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
-    if(car.speed > 0) {
-      car.speed -= 0.1; 
-    } 
   }
+
   car_top_left_point_update(car);
   car_top_right_point_update(car);
   car_top_left_point_update(com_car);
@@ -179,3 +189,19 @@ function getRgbByXYAIMap(x,y) {
   var rgbObj = ai_bit_bg.getPixelRGB(Math.round(x), Math.round(y));
   return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
 }
+
+function is_touching_device() {
+  isTouching = false;
+  
+  return isTouching;
+}
+
+$("#game").on("touchstart mousedown",function(e){
+  isTouching = true;
+  console.log("here");
+});
+
+$("#game").on("touchend mouseup touchcancel",function(e){
+  isTouching = false;
+  console.log("here");
+});
