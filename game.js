@@ -1,15 +1,15 @@
-var WINDOW_WIDTH = $(window).width();
-var WINDOW_HEIGHT = $(window).height();
+var WINDOW_WIDTH = $("#game").width();
+var WINDOW_HEIGHT = $("#game").height();
 var isTouching = false;
 var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
-
 var counter = 0;
 var bg,ai_bg, bitBg, ai_bit_bg;
 var TO_RADIANS = Math.PI/180;
 var slow_speed = 0.5;
 var normal_speed = 1;
 var com_speed = 1.5;
-var maxSpeed = 4;
+var maxSpeed = 3;
+var rotate_step = 2;
 var car;
 var com_car;
 var car_width = 18;
@@ -18,7 +18,8 @@ var car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_hei
 
 var accelerateTime = setInterval(function(){ 
   car.speed += 0.1;
-}, 1000);
+}, 500);
+
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
@@ -27,8 +28,7 @@ function preload() {
 }
 
 function create() {
-  
-  game.world.setBounds(0, 0, 1140, 801);
+  game.world.setBounds(0, 0, 3067, 1722);
   game.input.addPointer();
   
   ai_bg = game.add.image(0, 0, 'ai-map');
@@ -38,13 +38,13 @@ function create() {
   ai_bit_bg = game.make.bitmapData();
   ai_bit_bg.load(ai_bg);
 
-  car = game.add.sprite(1000,550, 'car');
+  car = game.add.sprite(2800,1350, 'car');
   
   game.physics.enable(car, Phaser.Physics.ARCADE);
   car.body.collideWorldBounds = true;
   car.body.bounce.setTo(1,1); 
   car.anchor.setTo(0.5,0.5);
-  car.rotationStep = 4;
+  car.rotationStep = rotate_step;
   car.angle = 0;
   car.top_left = {x:car.x,y:car.y,angle:0};
   car.top_right = {x:car.x + car_width,y:car.y,angle:0};
@@ -56,13 +56,13 @@ function create() {
   car.top_right.angle = Math.atan2(car.top_right.x - car.center_point.x,car.center_point.y - car.top_right.y); 
  game.camera.follow(car);
   
-  com_car = game.add.sprite(1000,500, 'car');
+  com_car = game.add.sprite(2900,1250, 'car');
   game.physics.enable(com_car, Phaser.Physics.ARCADE);
   com_car.body.collideWorldBounds = true;
   com_car.body.bounce.setTo(1,1); 
   
   com_car.anchor.setTo(0.5,0.5);
-  com_car.rotationStep = 4;
+  com_car.rotationStep = rotate_step;
   com_car.angle = 0;
   com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
   com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
@@ -114,12 +114,12 @@ function update() {
   }
 
   //computer cars
-  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#ce470d") {
+  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#d01e2d" || getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#cf1f2c" || getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#cf1e2c") {
     com_car.rotationStep = 16;
-    steerRight(com_car); 
+    steerRight(com_car);
   }
   
-  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#9cce4d") {
+  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#80c44e" || getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#7fc44d" || getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#7ec44c") {
     com_car.rotationStep = 16;
     steerLeft(com_car); 
   }
@@ -161,12 +161,12 @@ function speedXY (rotation, speed) {
 
 function steerLeft(car){
   car.angle -= car.rotationStep * (car.speed/maxSpeed);
-  car.rotationStep = 4;
+  car.rotationStep = rotate_step;
 }
 
 function steerRight(car){
   car.angle += car.rotationStep * (car.speed/maxSpeed);
-  car.rotationStep = 4;
+  car.rotationStep = rotate_step;
 }
 
 function car_top_left_point_update(car) {
@@ -187,6 +187,7 @@ function getRgbByXYMainMap(x,y) {
 
 function getRgbByXYAIMap(x,y) {
   var rgbObj = ai_bit_bg.getPixelRGB(Math.round(x), Math.round(y));
+  
   return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
 }
 
@@ -198,10 +199,8 @@ function is_touching_device() {
 
 $("#game").on("touchstart mousedown",function(e){
   isTouching = true;
-  console.log("here");
 });
 
 $("#game").on("touchend mouseup touchcancel",function(e){
   isTouching = false;
-  console.log("here");
 });
