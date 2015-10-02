@@ -19,11 +19,27 @@ var car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_hei
 var accelerateTime = setInterval(function(){ 
   if(car.speed < maxSpeed) {
     car.speed += 0.1;
+    if(car.speed >= maxSpeed) {
+      car.change_status = true; 
+    }
   } 
-}, 500);
+}, 400);
 
 var bg_music;
 var first_collision_music;
+var cheering_music;
+var light_music;
+var low_engith_music;
+var boost_music;
+var slow_down_music;
+var fast_music;
+
+//game control variables
+var game_start = false;
+var car_boost = false;
+var car_in_sand = false;
+var car_in_road = false;
+var car_collide = false;
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
@@ -32,6 +48,12 @@ function preload() {
   game.load.image('ai-car', 'assets/ai-car.png');
   game.load.audio('bg-musi', ['assets/bg.mp3']);
   game.load.audio('collision-musi', ['assets/bump_1.mp3']);
+  game.load.audio('lights-musi', ['assets/lights.mp3']);
+  game.load.audio('cheering-musi', ['assets/cheering.mp3']);
+  game.load.audio('low-engine-musi', ['assets/engine_normal.mp3']);
+  game.load.audio('boost-musi', ['assets/engine_normal_to_fast.mp3']);
+  game.load.audio('slow-down-musi', ['assets/engine_fast_to_normal.mp3']);
+  game.load.audio('fast-musi', ['assets/engine_fast.mp3']);
 }
 
 function create() {
@@ -40,13 +62,29 @@ function create() {
   
   //load bg music 
   bg_music = game.add.audio('bg-musi');
-  bg_music.volume = 1;
-  //bg_music.play();
-  bg_music.onStop.add(function(sound){sound.restart();},this);
+  bg_music.volume = 0.1;
+  bg_music.loop = true;  
+  bg_music.play();
+  //bg_music.onStop.add(function(sound){sound.volume = 0.1;sound.restart();},this);
   
   //collision music
   first_collision_music = game.add.audio('collision-musi');
+  first_collision_music.volume = 1;
   
+  //cheering music
+  light_music = game.add.audio('lights-musi'); 
+  light_music.play();
+  cheering_music = game.add.audio('cheering-musi'); 
+  cheering_music.play();
+  
+  //speed musics
+  low_engith_music = game.add.audio('low-engine-musi'); 
+  low_engith_music.loop = true; 
+  boost_music = game.add.audio('boost-musi'); 
+  slow_down_music = game.add.audio('slow-down-musi'); 
+  fast_music = game.add.audio('fast-musi'); 
+ 
+   
   ai_bg = game.add.image(0, 0, 'ai-map');
   bg = game.add.image(0, 0, 'track-hit');
   bitBg = game.make.bitmapData();
@@ -55,10 +93,13 @@ function create() {
   ai_bit_bg.load(ai_bg);
 
   car = game.add.sprite(2800,1350, 'car');
-  
+  car.change_status = false;
+
   game.physics.enable(car, Phaser.Physics.ARCADE);
   car.body.collideWorldBounds = true;
-  car.body.bounce.setTo(1,1); 
+  car.body.bounce.setTo(0.7,0.7); 
+  car.body.offset.x = 0.5; 
+  car.body.offset.y = 0.5; 
   car.anchor.setTo(0.5,0.5);
   car.rotationStep = rotate_step;
   car.angle = 0;
@@ -70,13 +111,11 @@ function create() {
 
   car.top_left.angle = Math.atan2(car.top_left.x - car.center_point.x,car.center_point.y - car.top_left.y); 
   car.top_right.angle = Math.atan2(car.top_right.x - car.center_point.x,car.center_point.y - car.top_right.y); 
- game.camera.follow(car);
+  game.camera.follow(car);
   
   com_car = game.add.sprite(2900,1250, 'ai-car');
   game.physics.enable(com_car, Phaser.Physics.ARCADE);
-  com_car.body.bounce.setTo(1,1); 
   com_car.body.collideWorldBounds = true;
-  com_car.body.bounce.setTo(1,1); 
   
   com_car.anchor.setTo(0.5,0.5);
   com_car.rotationStep = rotate_step;
@@ -88,20 +127,31 @@ function create() {
   com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y); 
   com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
   //create counter
+
+  //set timer
+  setTimeout(function(){ 
+    game_start = true; 
+    car_boost = true; 
+    car_in_road = true; 
+    car.change_status = true; 
+  }, 2000);
 }
 
 
 
 function update() {
- 
+  if(car.overlap(com_car)) {
+    //car.speed = 0; 
+  }
+  
   if(isTouching) {
     if(game.input.pointer1.position.x > (WINDOW_WIDTH/2)) {
       steerRight(car);
     }else if(game.input.pointer1.position.x < (WINDOW_WIDTH/2)) {
       steerLeft(car);
     }
-  } 
-   
+  }
+
   
   if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT))
   {
@@ -119,17 +169,28 @@ function update() {
   
   //stear cars
   // if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
-  //   car.rotationStep = 128;
-  //   steerRight(car); 
+  //    car.rotationStep = 128;
+  //    steerRight(car); 
   // }
   
   // if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000") {
-  //   car.rotationStep = 128;
-  //   steerLeft(car); 
+  //    car.rotationStep = 128;
+  //    steerLeft(car); 
   // }
   
-  if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000" || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
-    car.speed = slow_speed; 
+  if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000" && getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
+    car.speed = slow_speed;
+    if(car_in_road) {
+      car.change_status = true; 
+      car_in_road = false;  
+      car_in_sand = true; 
+    }
+  }else {
+    if(!car_in_road) {
+      car.change_status = true; 
+      car_in_road = true;  
+      car_in_sand = false;
+    } 
   }
 
   //hit computer cars
@@ -147,10 +208,48 @@ function update() {
     steerLeft(com_car); 
   }
   //computer cars
-  
-  moveCar(car);
-  moveCar(com_car);
+  if(game_start)  {
+    moveCar(car);
+    moveCar(com_car);
+  } 
   game.physics.arcade.collide(car, com_car, collisionHandler, collisionHandler, this);
+  
+  //game control sounds
+  if(car_boost && car.change_status) {
+    fast_music.stop(); 
+    boost_music.play(); 
+  }
+  if(car_in_sand && car.change_status) {
+    boost_music.stop(); 
+    fast_music.stop(); 
+    slow_down_music.play();
+    slow_down_music.onStop.add(function(){low_engith_music.play();}); 
+  }
+  if(car_in_road && car.change_status) {
+    slow_down_music.stop();
+    low_engith_music.stop();
+    boost_music.play(); 
+  }
+  
+  if(car.speed >= maxSpeed  && car.change_status) {
+    boost_music.stop(); 
+    fast_music.loop = true; 
+    fast_music.play(); 
+  }
+
+  if(car_collide && car.change_status) {
+    fast_music.stop(); 
+    slow_down_music.play();
+    
+    slow_down_music.onStop.add(function(){
+      car.change_status = true;
+      car_in_road = true; 
+    },this); 
+  }
+  //flush all control variables
+  car_boost = false;
+  car_collide = false;
+  car.change_status = false;
 }
 
 
@@ -230,7 +329,9 @@ $("#game").on("touchend mouseup touchcancel",function(e){
 });
 
 function collisionHandler(car, com_car) {
-  car.speed = 0;
+  car.speed = 0.5;
+  car_collide = true; 
+  car.change_status = true; 
   if(first_collision_music.onPlay.active) {
     first_collision_music.play();
   }
