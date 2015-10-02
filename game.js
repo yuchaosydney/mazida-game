@@ -12,8 +12,8 @@ var maxSpeed = 2.5;
 var rotate_step = 2;
 var car;
 var com_car;
-var car_width = 18;
-var car_height = 36;
+var car_width = 56;
+var car_height = 112;
 var car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_height/2));
 
 var accelerateTime = setInterval(function(){ 
@@ -54,11 +54,17 @@ function preload() {
   game.load.audio('boost-musi', ['assets/engine_normal_to_fast.mp3']);
   game.load.audio('slow-down-musi', ['assets/engine_fast_to_normal.mp3']);
   game.load.audio('fast-musi', ['assets/engine_fast.mp3']);
+  game.load.physics('carPhysicsData', 'assets/car.json');
 }
 
 function create() {
   game.world.setBounds(0, 0, 3067, 1722);
-  game.input.addPointer();//for mobile touching
+  game.physics.startSystem(Phaser.Physics.P2JS);
+ game.physics.p2.gravity.y = 0;
+ game.physics.p2.restitution = 0;  
+ game.physics.p2.setImpactEvents(true);
+game.physics.p2.world.defaultContactMaterial.friction = 3;
+ game.input.addPointer();//for mobile touching
   
   //load bg music 
   bg_music = game.add.audio('bg-musi');
@@ -92,30 +98,30 @@ function create() {
   ai_bit_bg = game.make.bitmapData();
   ai_bit_bg.load(ai_bg);
 
+  //car things
   car = game.add.sprite(2800,1350, 'car');
   car.change_status = false;
 
-  game.physics.enable(car, Phaser.Physics.ARCADE);
-  car.body.collideWorldBounds = true;
-  car.body.bounce.setTo(0.7,0.7); 
-  car.body.offset.x = 0.5; 
-  car.body.offset.y = 0.5; 
   car.anchor.setTo(0.5,0.5);
   car.rotationStep = rotate_step;
   car.angle = 0;
   car.top_left = {x:car.x,y:car.y,angle:0};
   car.top_right = {x:car.x + car_width,y:car.y,angle:0};
   car.speed = normal_speed; 
-
+  
   car.center_point = {x:car.x + car_width/2,y:car.y + car_height/2};
 
   car.top_left.angle = Math.atan2(car.top_left.x - car.center_point.x,car.center_point.y - car.top_left.y); 
   car.top_right.angle = Math.atan2(car.top_right.x - car.center_point.x,car.center_point.y - car.top_right.y); 
   game.camera.follow(car);
+  game.physics.p2.enableBody(car,true);
+  car.body.clearShapes(); 
+  car.body.world.restitution = 0; 
+  car.body.loadPolygon('carPhysicsData','car');
+  //car things
+  
   
   com_car = game.add.sprite(2900,1250, 'ai-car');
-  game.physics.enable(com_car, Phaser.Physics.ARCADE);
-  com_car.body.collideWorldBounds = true;
   
   com_car.anchor.setTo(0.5,0.5);
   com_car.rotationStep = rotate_step;
@@ -123,6 +129,11 @@ function create() {
   com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
   com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
   com_car.speed = com_speed; 
+  game.physics.p2.enableBody(com_car,true);
+  com_car.body.clearShapes(); 
+  com_car.body.loadPolygon('carPhysicsData','car');
+  com_car.body.sprite = com_car;
+  com_car.body.world.restitution = 0; 
 
   com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y); 
   com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
@@ -135,14 +146,32 @@ function create() {
     car_in_road = true; 
     car.change_status = true; 
   }, 2000);
+  
+// var pandaCollisionGroup = game.physics.p2.createCollisionGroup();
+// game.physics.p2.updateBoundsCollisionGroup();
+// com_car.body.setCollisionGroup(pandaCollisionGroup);
+var checkGroup = game.add.group();
+  checkGroup.add(car);
+  checkGroup.add(com_car);
+
 }
 
 
 
+
 function update() {
-  if(car.overlap(com_car)) {
-    //car.speed = 0; 
-  }
+  
+  //disable p2 physics collistion default effect 
+  car.body.velocity.x = 0;
+  car.body.velocity.y = 0;
+  car.body.angularVelocity = 0;
+  com_car.body.velocity.x = 0;
+  com_car.body.velocity.y = 0;
+  com_car.body.angularVelocity = 0;
+  // if(car.overlap(com_car)) {
+  //   alert("here"); 
+  //   //car.speed = 0; 
+  // }
   
   if(isTouching) {
     if(game.input.pointer1.position.x > (WINDOW_WIDTH/2)) {
@@ -212,7 +241,6 @@ function update() {
     moveCar(car);
     moveCar(com_car);
   } 
-  game.physics.arcade.collide(car, com_car, collisionHandler, collisionHandler, this);
   
   //game control sounds
   if(car_boost && car.change_status) {
@@ -270,8 +298,8 @@ function render() {
 
 function moveCar(car) {
   var speedAxis = speedXY(car.angle, car.speed);
-  car.x += speedAxis.x;
-  car.y += speedAxis.y;
+  car.body.x += speedAxis.x;
+  car.body.y += speedAxis.y;
   car.distance ++;
 }
 
@@ -283,13 +311,13 @@ function speedXY (rotation, speed) {
 }
 
 function steerLeft(car){
-  car.angle -= car.rotationStep * (car.speed/maxSpeed);
-  car.rotationStep = rotate_step;
+  car.body.angle -= car.rotationStep * (car.speed/maxSpeed);
+  car.body.rotationStep = rotate_step;
 }
 
 function steerRight(car){
-  car.angle += car.rotationStep * (car.speed/maxSpeed);
-  car.rotationStep = rotate_step;
+  car.body.angle += car.rotationStep * (car.speed/maxSpeed);
+  car.body.rotationStep = rotate_step;
 }
 
 function car_top_left_point_update(car) {
