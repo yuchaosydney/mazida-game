@@ -6,11 +6,12 @@ var counter = 0;
 var bg,ai_bg, bitBg, ai_bit_bg;
 var TO_RADIANS = Math.PI/180;
 var slow_speed = 0.5;
-var normal_speed = 1;
-var com_speed = 1.5;
-var maxSpeed = 2.5;
+var normal_speed = 2;
+var com_speed = 4;
+var maxSpeed = 5;
 var rotate_step = 2;
 var car;
+var com_cars;
 var com_car;
 var car_width = 56;
 var car_height = 112;
@@ -43,7 +44,8 @@ var car_collide = false;
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
-  game.load.image('ai-map', 'assets/ai_map.png');
+  game.load.image('map', 'assets/map.jpg');
+  game.load.image('ai-map', 'assets/ai_map.jpg');
   game.load.image('car', 'assets/car.png');
   game.load.image('ai-car', 'assets/ai-car.png');
   game.load.audio('bg-musi', ['assets/bg.mp3']);
@@ -93,18 +95,20 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
    
   ai_bg = game.add.image(0, 0, 'ai-map');
   bg = game.add.image(0, 0, 'track-hit');
+  game.add.image(0, 0, 'map');
   bitBg = game.make.bitmapData();
   bitBg.load(bg);
   ai_bit_bg = game.make.bitmapData();
   ai_bit_bg.load(ai_bg);
 
   //car things
-  car = game.add.sprite(2800,1350, 'car');
+  car = game.add.sprite(1500,450, 'car');
   car.change_status = false;
-
+  car.finish_step_one = false;
+  car.finish_step_two = false;
   car.anchor.setTo(0.5,0.5);
   car.rotationStep = rotate_step;
-  car.angle = 0;
+  car.rotation = 90*TO_RADIANS;
   car.top_left = {x:car.x,y:car.y,angle:0};
   car.top_right = {x:car.x + car_width,y:car.y,angle:0};
   car.speed = normal_speed; 
@@ -118,14 +122,12 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
   car.body.clearShapes(); 
   car.body.world.restitution = 0; 
   car.body.loadPolygon('carPhysicsData','car');
+  car.body.angle = 90;
   //car things
   
-  
-  com_car = game.add.sprite(2900,1250, 'ai-car');
-  
+  com_car = game.add.sprite(1350,450, 'ai-car');
   com_car.anchor.setTo(0.5,0.5);
   com_car.rotationStep = rotate_step;
-  com_car.angle = 0;
   com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
   com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
   com_car.speed = com_speed; 
@@ -134,6 +136,7 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
   com_car.body.loadPolygon('carPhysicsData','car');
   com_car.body.sprite = com_car;
   com_car.body.world.restitution = 0; 
+  com_car.body.angle = 90;
 
   com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y); 
   com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
@@ -160,7 +163,7 @@ var checkGroup = game.add.group();
 
 
 function update() {
-  
+  changing_top_right = false; 
   //disable p2 physics collistion default effect 
   car.body.velocity.x = 0;
   car.body.velocity.y = 0;
@@ -206,15 +209,27 @@ function update() {
   //    car.rotationStep = 128;
   //    steerLeft(car); 
   // }
-  
-  if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000" && getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
+  if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#ea2027" && getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#ea2027") {
     car.speed = slow_speed;
     if(car_in_road) {
       car.change_status = true; 
       car_in_road = false;  
       car_in_sand = true; 
     }
-  }else {
+  }else if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#010001"){
+    car.rotationStep = 40;
+    steerLeft(car);
+    car.rotationStep = 4;
+    changing_top_right = true;
+  }else if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#010001" && !changing_top_right){
+    car.rotationStep = 40;
+    steerRight(car);
+    car.rotationStep = 4;
+  }else if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#010001" && getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#010001") {
+    car.speed = 0; 
+  }
+  
+  else {
     if(!car_in_road) {
       car.change_status = true; 
       car_in_road = true;  
@@ -225,16 +240,15 @@ function update() {
   //hit computer cars
   //console.log(com_car.getPixelRGB(Math.round(car.top_right.x), Math.round(car.top_right.y)));
   //computer cars
-  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#d01e2d" || getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#cf1f2c" || getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#cf1e2c") {
+  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#f0262d") {
     com_car.rotationStep = 16;
-    steerRight(com_car);
+    steerLeft(com_car); 
   }else {
   
   }
-  
-  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#80c44e" || getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#7fc44d" || getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#7ec44c") {
+  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#6dbf40") {
     com_car.rotationStep = 16;
-    steerLeft(com_car); 
+    steerRight(com_car);
   }
   //computer cars
   if(game_start)  {
@@ -274,6 +288,12 @@ function update() {
       car_in_road = true; 
     },this); 
   }
+  console.log(car.finish_step_one +"---"+car.finish_step_two);
+  //check if car finish or not
+  if(isFinished(car,car.body.x,car.body.y)) {
+    alert(this.game.time.totalElapsedSeconds()); 
+  } 
+
   //flush all control variables
   car_boost = false;
   car_collide = false;
@@ -346,6 +366,30 @@ function is_touching_device() {
   isTouching = false;
   
   return isTouching;
+}
+
+function isFinished(car,x,y) {
+  
+  if(getRgbByXYMainMap(x,y) == "#d6ce14") {
+    car.finish_step_one = true;
+  }
+
+  if(getRgbByXYMainMap(x,y) == "#2437b1") {
+    if(car.finish_step_one) {
+      car.finish_step_two = true;
+    } 
+  }
+
+  
+  if(car.finish_step_two && car.finish_step_one) {
+    car.finish_step_one = false;
+    car.finish_step_two = false;
+    return true; 
+  }else {
+    return false;  
+  }
+
+
 }
 
 $("#game").on("touchstart mousedown",function(e){
