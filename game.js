@@ -10,7 +10,7 @@ var TO_RADIANS = Math.PI/180;
 var slow_speed = 1;
 var normal_speed = 2;
 var com_speed = 6;
-var maxSpeed = 7.5;
+var maxSpeed = 6;
 var rotate_step = 3;
 var car;
 var com_cars = [];
@@ -73,9 +73,7 @@ var ai_cars = [];
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
-  game.load.image('map', 'assets/map.jpg');
-  //game.load.image('ai-map1', 'assets/ai_map1.jpg');
-    //game.load.image('ai-map2', 'assets/ai_map2.jpg');
+  game.load.image('map', 'assets/map.jpg');;
   game.load.image('car', 'assets/car.png');
   game.load.image('ai-car', 'assets/ai-car.png');
   game.load.audio('bg-musi', ['assets/bg.mp3']);
@@ -93,7 +91,7 @@ function create() {
   game.world.setBounds(0, 0, 3067, 1722);
   game.physics.startSystem(Phaser.Physics.P2JS);
  game.physics.p2.gravity.y = 0;
- game.physics.p2.restitution = 0;  
+ game.physics.p2.restitution = 5;
  game.physics.p2.setImpactEvents(true);
 game.physics.p2.world.defaultContactMaterial.friction = 3;
  game.input.addPointer();//for mobile touching
@@ -154,9 +152,9 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
   
   var com_car1 = game.add.sprite(1350,400, 'ai-car');
     //game.camera.follow(com_car1);
-    var com_car2 = game.add.sprite(1345,500, 'ai-car');
-    var com_car3 = game.add.sprite(1340,450, 'ai-car');
-    var com_car4 = game.add.sprite(1335,450, 'ai-car');
+    var com_car2 = game.add.sprite(1240,500, 'ai-car');
+    var com_car3 = game.add.sprite(1140,450, 'ai-car');
+    var com_car4 = game.add.sprite(1035,450, 'ai-car');
     com_cars.push(com_car1);
     com_cars.push(com_car2);
     com_cars.push(com_car3);
