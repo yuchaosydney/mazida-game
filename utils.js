@@ -43,11 +43,11 @@ function getRgbByXYMainMap(x,y) {
     return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
 }
 
-function getRgbByXYAIMapFirst(x,y) {
-    var rgbObj = ai_bit_bg1.getPixelRGB(Math.round(x), Math.round(y));
-    console.log(Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b));
-    return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
-}
+//function getRgbByXYAIMapFirst(x,y) {
+//    var rgbObj = ai_bit_bg1.getPixelRGB(Math.round(x), Math.round(y));
+//    console.log(Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b));
+//    return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
+//}
 
 function is_touching_device() {
     isTouching = false;
@@ -96,4 +96,100 @@ function collisionHandler(car, com_car) {
     if(first_collision_music.onPlay.active) {
         first_collision_music.play();
     }
+}
+
+function initAICars (ai_cars,game,checkGroup) {
+    $.each(ai_cars,function(index,com_car){
+        car.control_by_border = false;
+        com_car.anchor.setTo(0.5,0.5);
+        com_car.rotationStep = rotate_step;
+        com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
+        com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
+        com_car.speed = com_speed;
+        game.physics.p2.enableBody(com_car,true);
+        com_car.body.clearShapes();
+        com_car.body.loadPolygon('carPhysicsData','car');
+        com_car.body.sprite = com_car;
+        com_car.body.world.restitution = 0;
+        com_car.body.angle = 90;
+
+        com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y);
+        com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
+        //checkGroup.add(com_car);
+        //create counter
+    });
+}
+
+function aiCarControlls(ai_cars) {
+    $.each(ai_cars,function(index,com_car){
+        com_car.body.velocity.x = 0;
+        com_car.body.velocity.y = 0;
+        com_car.body.angularVelocity = 0;
+        /**hit computer cars**/
+        //computer cars
+        //border collision
+        if(getRgbByXYMainMap(com_car.top_left.x,com_car.top_left.y) == DESKTOP_CHROME_AI_SEER_LEFT_GREY
+            ||getRgbByXYMainMap(com_car.top_left.x,com_car.top_left.y) == DESKTOP_CHROME_AI_SEER_LEFT_ORANGE) {
+            com_car.rotationStep = 16;
+            steerLeft(com_car);
+        }else {
+
+        }
+
+        if(getRgbByXYMainMap(com_car.top_right.x,com_car.top_right.y) == DESKTOP_CHROME_AI_SEER_RIGHT_DARK
+            ||getRgbByXYMainMap(com_car.top_right.x,com_car.top_right.y) == DESKTOP_CHROME_AI_SEER_RIGHT_RED) {
+            com_car.rotationStep = 16;
+            steerRight(com_car);
+        }
+        //border collision
+
+        //road turn left and right
+        if(getRgbByXYMainMap(com_car.top_left.x,com_car.top_left.y) == DESKTOP_CHROME_AI_ROAD_SEER_LEFT_GREEN) {
+            com_car.rotationStep = 2;
+            steerLeft(com_car);
+            com_car.control_by_border = true;
+        }else {
+            com_car.control_by_border = false;
+        }
+
+        if(getRgbByXYMainMap(com_car.top_right.x,com_car.top_right.y) == DESKTOP_CHROME_AI_ROAD_SEER_RIGHT_BLUE) {
+            com_car.rotationStep = 2;
+            steerRight(com_car);
+            com_car.control_by_border = true;
+        }else {
+            com_car.control_by_border = false;
+        }
+
+        if(!com_car.control_by_border && com_car_can_turn) {
+
+            com_car.speed = Math.floor((Math.random() * maxSpeed) + normal_speed);
+            console.log(com_car.speed);
+            if(Math.floor((Math.random() * 2) + 0) == 0) {
+                //turn left
+
+                com_car.rotationStep = 16;
+                steerLeft(com_car);
+            }else {
+                //turn right
+                com_car.rotationStep = 16;
+                steerRight(com_car);
+            }
+            com_car_can_turn = false;
+        }
+        //road turn left and right
+        /**hit computer cars**/
+    });
+}
+
+function car_top_left_point_update_Aicars (com_cars) {
+    $.each(com_cars,function(index,com_car){
+        car_top_left_point_update(com_car);
+        car_top_right_point_update(com_car);
+    });
+}
+
+function moveComCars(com_cars) {
+    $.each(com_cars,function(index,com_car){
+        moveCar(com_car);
+    });
 }

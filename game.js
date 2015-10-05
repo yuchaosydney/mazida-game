@@ -3,7 +3,7 @@ var WINDOW_HEIGHT = $("#game").height();
 
 
 var isTouching = false;
-var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
+var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update,render: render });
 var counter = 0;
 var bg,ai_bg1,ai_bg2,ai_bg3,ai_bg4,ai_bg5, bitBg, ai_bit_bg1,ai_bit_bg2,ai_bit_bg3,ai_bit_bg4,ai_bit_bg5;
 var TO_RADIANS = Math.PI/180;
@@ -13,8 +13,9 @@ var com_speed = 6;
 var maxSpeed = 7.5;
 var rotate_step = 3;
 var car;
-var com_cars;
+var com_cars = [];
 var com_car;
+var checkGroup;
 var car_width = 56;
 var car_height = 112;
 var car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_height/2));
@@ -45,13 +46,18 @@ var car_in_road = false;
 var car_collide = false;
 
 //main map color configure
-var DESKTOP_CHROME_SAND = "#e92026";
+var DESKTOP_CHROME_SAND_RED = "#e92026";
+var DESKTOP_CHROME_SAND_ORANGE = "#db902e";
 var DESKTOP_CHROME_BLACKAREA = "#000000";
 var DESKTOP_CHROME_GREY = "#5b5d57";
 var DESKTOP_CHROME_FINISH_STEP_ONE = "#d6ce13";
 var DESKTOP_CHROME_FINISH_STEP_TWO = "#2337b0";
-var DESKTOP_CHROME_AI_SEER_LEFT = "#f0262d";
-var DESKTOP_CHROME_AI_SEER_RIGHT = "#6dbf40";
+var DESKTOP_CHROME_AI_SEER_LEFT_GREY = "#5b5d57";
+var DESKTOP_CHROME_AI_SEER_LEFT_ORANGE = "#db902e";
+var DESKTOP_CHROME_AI_SEER_RIGHT_DARK = "#000000";
+var DESKTOP_CHROME_AI_SEER_RIGHT_RED = "#e92026";
+var DESKTOP_CHROME_AI_ROAD_SEER_LEFT_GREEN = "#98db2e";
+var DESKTOP_CHROME_AI_ROAD_SEER_RIGHT_BLUE = "#2edbb9";
 
 var DESKTOP_FIRE_AI_SEER_LEFT = "#ef262c";
 
@@ -62,10 +68,13 @@ var MOBILE_SAFAFI_FINISH_STEP_TWO = "#2337b1";
 var MOBILE_SAFAFI_AI_SEER_LEFT = "#ef272c";
 var MOBILE_SAFAFI_AI_SEER_RIGHT = "#6dbf3f";
 
+var com_car_can_turn = false;
+var ai_cars = [];
+
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
   game.load.image('map', 'assets/map.jpg');
-  game.load.image('ai-map1', 'assets/ai_map1.jpg');
+  //game.load.image('ai-map1', 'assets/ai_map1.jpg');
     //game.load.image('ai-map2', 'assets/ai_map2.jpg');
   game.load.image('car', 'assets/car.png');
   game.load.image('ai-car', 'assets/ai-car.png');
@@ -113,15 +122,6 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
   slow_down_music = game.add.audio('slow-down-musi'); 
   fast_music = game.add.audio('fast-musi'); 
 
-    /**ai cars**/
-  ai_bg1 = game.add.image(0, 0, 'ai-map1');
-  ai_bit_bg1 = game.make.bitmapData();
-  ai_bit_bg1.load(ai_bg1);
-
-    ai_bg2 = game.add.image(0, 0, 'ai-map2');
-    ai_bit_bg2 = game.make.bitmapData();
-    ai_bit_bg2.load(ai_bg2);
-    /**ai cars**/
 
     bg = game.add.image(0, 0, 'track-hit');
     game.add.image(0, 0, 'map');
@@ -152,23 +152,18 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
   car.body.angle = 90;
   //car things
   
-  com_car = game.add.sprite(1350,450, 'ai-car');
-  //game.camera.follow(com_car);
-  com_car.anchor.setTo(0.5,0.5);
-  com_car.rotationStep = rotate_step;
-  com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
-  com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
-  com_car.speed = com_speed; 
-  game.physics.p2.enableBody(com_car,true);
-  com_car.body.clearShapes(); 
-  com_car.body.loadPolygon('carPhysicsData','car');
-  com_car.body.sprite = com_car;
-  com_car.body.world.restitution = 0; 
-  com_car.body.angle = 90;
+  var com_car1 = game.add.sprite(1350,400, 'ai-car');
+    //game.camera.follow(com_car1);
+    var com_car2 = game.add.sprite(1345,500, 'ai-car');
+    var com_car3 = game.add.sprite(1340,450, 'ai-car');
+    var com_car4 = game.add.sprite(1335,450, 'ai-car');
+    com_cars.push(com_car1);
+    com_cars.push(com_car2);
+    com_cars.push(com_car3);
+    com_cars.push(com_car4);
+    initAICars(com_cars,game,checkGroup);
 
-  com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y); 
-  com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
-  //create counter
+
 
   //set timer
   setTimeout(function(){ 
@@ -177,13 +172,18 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
     car_in_road = true; 
     car.change_status = true; 
   }, 2000);
-  
-// var pandaCollisionGroup = game.physics.p2.createCollisionGroup();
-// game.physics.p2.updateBoundsCollisionGroup();
-// com_car.body.setCollisionGroup(pandaCollisionGroup);
-var checkGroup = game.add.group();
-  checkGroup.add(car);
-  checkGroup.add(com_car);
+
+    checkGroup = game.add.group();
+    checkGroup.add(car);
+    checkGroup.add(com_car1);
+    checkGroup.add(com_car2);
+    checkGroup.add(com_car3);
+    checkGroup.add(com_car4);
+
+    //interval control ai cars turn left and right
+    setInterval(function(){
+        com_car_can_turn = true;
+    }, 500);
 
 }
 
@@ -196,13 +196,6 @@ function update() {
   car.body.velocity.x = 0;
   car.body.velocity.y = 0;
   car.body.angularVelocity = 0;
-  com_car.body.velocity.x = 0;
-  com_car.body.velocity.y = 0;
-  com_car.body.angularVelocity = 0;
-  // if(car.overlap(com_car)) {
-  //   alert("here"); 
-  //   //car.speed = 0; 
-  // }
   
   if(isTouching) {
     if(game.input.pointer1.position.x > (WINDOW_WIDTH/2)) {
@@ -224,23 +217,10 @@ function update() {
 
   car_top_left_point_update(car);
   car_top_right_point_update(car);
-  car_top_left_point_update(com_car);
-  car_top_right_point_update(com_car);
-  
-  //stear cars
-  // if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#000000") {
-  //    car.rotationStep = 128;
-  //    steerRight(car); 
-  // }
-  
-  // if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#000000") {
-  //    car.rotationStep = 128;
-  //    steerLeft(car); 
-  // }
-  
-  // 
-  if((getRgbByXYMainMap(car.top_right.x,car.top_right.y) == DESKTOP_CHROME_SAND || getRgbByXYMainMap(car.top_right.x,car.top_right.y) == MOBILE_SAFAFI_SAND)
-     && (getRgbByXYMainMap(car.top_left.x,car.top_left.y) == DESKTOP_CHROME_SAND || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == MOBILE_SAFAFI_SAND)) {
+    car_top_left_point_update_Aicars(com_cars);
+
+  if((getRgbByXYMainMap(car.top_right.x,car.top_right.y) == DESKTOP_CHROME_SAND_RED || getRgbByXYMainMap(car.top_right.x,car.top_right.y) == DESKTOP_CHROME_SAND_ORANGE)
+     && (getRgbByXYMainMap(car.top_left.x,car.top_left.y) == DESKTOP_CHROME_SAND_RED || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == DESKTOP_CHROME_SAND_ORANGE)) {
     car.speed = slow_speed;
     if(car_in_road) {
       car.change_status = true; 
@@ -271,26 +251,14 @@ function update() {
     } 
   }
 
-  //hit computer cars
-  //computer cars
-  if(getRgbByXYAIMapFirst(com_car.top_left.x,com_car.top_left.y) == DESKTOP_CHROME_AI_SEER_LEFT
-    ||getRgbByXYAIMapFirst(com_car.top_left.x,com_car.top_left.y) == MOBILE_SAFAFI_AI_SEER_LEFT
-    ||getRgbByXYAIMapFirst(com_car.top_left.x,com_car.top_left.y) == DESKTOP_FIRE_AI_SEER_LEFT) {
-    com_car.rotationStep = 16;
-    steerLeft(com_car); 
-  }else {
-  
-  }
+  /**hit computer cars**/
+  aiCarControlls(com_cars);
+    /**hit computer cars**/
 
-  if(getRgbByXYAIMapFirst(com_car.top_right.x,com_car.top_right.y) == DESKTOP_CHROME_AI_SEER_RIGHT
-    ||getRgbByXYAIMapFirst(com_car.top_right.x,com_car.top_right.y) == MOBILE_SAFAFI_AI_SEER_RIGHT) {
-    com_car.rotationStep = 16;
-    steerRight(com_car);
-  }
   //computer cars
   if(game_start)  {
     moveCar(car);
-    moveCar(com_car);
+      moveComCars(com_cars);
   } 
   
   //game control sounds
@@ -335,20 +303,10 @@ function update() {
   car_collide = false;
   car.change_status = false;
 
-
-    //adjust rotation steps
-    //if(car.speed >= 7) {
-    //    car.rotationStep = 2;
-    //}
 }
-
-
 
 function render() {
 
-	game.debug.bodyInfo(car, 16, 24);
-
-	// game.debug.body(sprite);
-	// game.debug.body(sprite2);
+    game.debug.spriteInfo(car, 32, 32);
 
 }
