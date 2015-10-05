@@ -1,5 +1,7 @@
 var WINDOW_WIDTH = $("#game").width();
 var WINDOW_HEIGHT = $("#game").height();
+
+
 var isTouching = false;
 var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{ preload: preload, create: create, update: update });
 var counter = 0;
@@ -41,6 +43,23 @@ var car_boost = false;
 var car_in_sand = false;
 var car_in_road = false;
 var car_collide = false;
+
+//main map color configure
+var DESKTOP_CHROME_SAND = "#ea2027";
+var DESKTOP_CHROME_BLACKAREA = "#010001";
+var DESKTOP_CHROME_FINISH_STEP_ONE = "#d6ce14";
+var DESKTOP_CHROME_FINISH_STEP_TWO = "#2437b1";
+var DESKTOP_CHROME_AI_SEER_LEFT = "#f0262d";
+var DESKTOP_CHROME_AI_SEER_RIGHT = "#6dbf40";
+
+var DESKTOP_FIRE_AI_SEER_LEFT = "#ef262c";
+
+var MOBILE_SAFAFI_SAND = "#e92126";
+var MOBILE_SAFAFI_BLACKAREA= "#000000";
+var MOBILE_SAFAFI_FINISH_STEP_ONE = "#d6ce13";
+var MOBILE_SAFAFI_FINISH_STEP_TWO = "#2337b1";
+var MOBILE_SAFAFI_AI_SEER_LEFT = "#ef272c";
+var MOBILE_SAFAFI_AI_SEER_RIGHT = "#6dbf3f";
 
 function preload() {
   game.load.image('track-hit', 'assets/track-hit.png');
@@ -126,6 +145,7 @@ game.physics.p2.world.defaultContactMaterial.friction = 3;
   //car things
   
   com_car = game.add.sprite(1350,450, 'ai-car');
+  //game.camera.follow(com_car);
   com_car.anchor.setTo(0.5,0.5);
   com_car.rotationStep = rotate_step;
   com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
@@ -209,23 +229,30 @@ function update() {
   //    car.rotationStep = 128;
   //    steerLeft(car); 
   // }
-  if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#ea2027" && getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#ea2027") {
+  
+  // 
+  if((getRgbByXYMainMap(car.top_right.x,car.top_right.y) == DESKTOP_CHROME_SAND || getRgbByXYMainMap(car.top_right.x,car.top_right.y) == MOBILE_SAFAFI_SAND)
+     && (getRgbByXYMainMap(car.top_left.x,car.top_left.y) == DESKTOP_CHROME_SAND || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == MOBILE_SAFAFI_SAND)) {
     car.speed = slow_speed;
     if(car_in_road) {
       car.change_status = true; 
       car_in_road = false;  
       car_in_sand = true; 
     }
-  }else if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#010001"){
+  }else if(getRgbByXYMainMap(car.top_right.x,car.top_right.y) == DESKTOP_CHROME_BLACKAREA || 
+          getRgbByXYMainMap(car.top_right.x,car.top_right.y) == MOBILE_SAFAFI_BLACKAREA){
     car.rotationStep = 40;
     steerLeft(car);
     car.rotationStep = 4;
     changing_top_right = true;
-  }else if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#010001" && !changing_top_right){
+  }else if((getRgbByXYMainMap(car.top_left.x,car.top_left.y) == DESKTOP_CHROME_BLACKAREA || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == MOBILE_SAFAFI_BLACKAREA) 
+           && !changing_top_right){
     car.rotationStep = 40;
     steerRight(car);
     car.rotationStep = 4;
-  }else if(getRgbByXYMainMap(car.top_left.x,car.top_left.y) == "#010001" && getRgbByXYMainMap(car.top_right.x,car.top_right.y) == "#010001") {
+  }else if((getRgbByXYMainMap(car.top_left.x,car.top_left.y) == DESKTOP_CHROME_BLACKAREA || getRgbByXYMainMap(car.top_left.x,car.top_left.y) == MOBILE_SAFAFI_BLACKAREA) 
+           && 
+           (getRgbByXYMainMap(car.top_right.x,car.top_right.y) == DESKTOP_CHROME_BLACKAREA || getRgbByXYMainMap(car.top_right.x,car.top_right.y) == MOBILE_SAFAFI_BLACKAREA)) {
     car.speed = 0; 
   }
   
@@ -238,15 +265,18 @@ function update() {
   }
 
   //hit computer cars
-  //console.log(com_car.getPixelRGB(Math.round(car.top_right.x), Math.round(car.top_right.y)));
   //computer cars
-  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == "#f0262d") {
+  if(getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == DESKTOP_CHROME_AI_SEER_LEFT
+    ||getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == MOBILE_SAFAFI_AI_SEER_LEFT
+    ||getRgbByXYAIMap(com_car.top_left.x,com_car.top_left.y) == DESKTOP_FIRE_AI_SEER_LEFT) {
     com_car.rotationStep = 16;
     steerLeft(com_car); 
   }else {
   
   }
-  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == "#6dbf40") {
+
+  if(getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == DESKTOP_CHROME_AI_SEER_RIGHT
+    ||getRgbByXYAIMap(com_car.top_right.x,com_car.top_right.y) == MOBILE_SAFAFI_AI_SEER_RIGHT) {
     com_car.rotationStep = 16;
     steerRight(com_car);
   }
@@ -288,7 +318,6 @@ function update() {
       car_in_road = true; 
     },this); 
   }
-  console.log(car.finish_step_one +"---"+car.finish_step_two);
   //check if car finish or not
   if(isFinished(car,car.body.x,car.body.y)) {
     alert(this.game.time.totalElapsedSeconds()); 
@@ -358,7 +387,7 @@ function getRgbByXYMainMap(x,y) {
 
 function getRgbByXYAIMap(x,y) {
   var rgbObj = ai_bit_bg.getPixelRGB(Math.round(x), Math.round(y));
-  
+  console.log(Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b)); 
   return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
 }
 
@@ -370,11 +399,13 @@ function is_touching_device() {
 
 function isFinished(car,x,y) {
   
-  if(getRgbByXYMainMap(x,y) == "#d6ce14") {
+  if(getRgbByXYMainMap(x,y) == DESKTOP_CHROME_FINISH_STEP_ONE || 
+    getRgbByXYMainMap(x,y) == MOBILE_SAFAFI_FINISH_STEP_ONE) {
     car.finish_step_one = true;
   }
 
-  if(getRgbByXYMainMap(x,y) == "#2437b1") {
+  if(getRgbByXYMainMap(x,y) == DESKTOP_CHROME_FINISH_STEP_TWO ||
+    getRgbByXYMainMap(x,y) == MOBILE_SAFAFI_FINISH_STEP_TWO) {
     if(car.finish_step_one) {
       car.finish_step_two = true;
     } 
