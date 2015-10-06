@@ -122,6 +122,13 @@ function initAICars (ai_cars,game,checkGroup) {
     });
 }
 
+function destroyAiCars(ai_cars) {
+  $.each(ai_cars,function(index,com_car){
+    com_car.destroy();       
+  });
+}
+
+
 function aiCarControlls(ai_cars) {
     $.each(ai_cars,function(index,com_car){
         com_car.body.velocity.x = 0;
@@ -165,7 +172,6 @@ function aiCarControlls(ai_cars) {
         if(!com_car.control_by_border && com_car_can_turn) {
 
             com_car.speed = Math.floor((Math.random() * maxSpeed) + normal_speed);
-            console.log(com_car.speed);
             if(Math.floor((Math.random() * 2) + 0) == 0) {
                 //turn left
 
@@ -194,4 +200,16 @@ function moveComCars(com_cars) {
     $.each(com_cars,function(index,com_car){
         moveCar(com_car);
     });
+}
+function formatTime(time) {
+    var sec_num = parseInt(time, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    var time    = hours+':'+minutes+':'+seconds;
+    return time;
 }

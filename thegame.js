@@ -1,71 +1,84 @@
 var theGame = function(game){
   console.log("the game constructor");   
   //game variables
-      isTouching = false;
-      counter = 0;
-      bg = null,ai_bg1 = null,ai_bg2 = null,ai_bg3 = null,ai_bg4 = null,ai_bg5 = null, bitBg = null, ai_bit_bg1 = null,ai_bit_bg2 = null,ai_bit_bg3 = null,ai_bit_bg4 = null,ai_bit_bg5 = null;
-      TO_RADIANS = Math.PI/180;
-      slow_speed = 1;
-      normal_speed = 2;
-      com_speed = 6;
-      maxSpeed = 6;
-      rotate_step = 3;
-      car = null;
-      com_cars = [];
-      com_car = null;
-      checkGroup = null;
-      car_width = 56;
-      car_height = 112;
-      car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_height/2));
+  rankingCounter = 0; 
+  isTouching = false;
+  counter = 0;
+  bg = null,ai_bg1 = null,ai_bg2 = null,ai_bg3 = null,ai_bg4 = null,ai_bg5 = null, bitBg = null, ai_bit_bg1 = null,ai_bit_bg2 = null,ai_bit_bg3 = null,ai_bit_bg4 = null,ai_bit_bg5 = null;
+  TO_RADIANS = Math.PI/180;
+  slow_speed = 1;
+  normal_speed = 2;
+  com_speed = 8;
+  maxSpeed = 6;
+  rotate_step = 3;
+  car = null;
+  com_cars = [];
+  com_car = null;
+  checkGroup = null;
+  car_width = 56;
+  car_height = 112;
+  car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_height/2));
 
-      bg_music = null;
-      first_collision_music = null;
-      cheering_music = null;
-      light_music = null;
-      low_engith_music = null;
-      boost_music = null;
-      slow_down_music = null;
-      fast_music = null;
+  bg_music = null;
+  first_collision_music = null;
+  cheering_music = null;
+  light_music = null;
+  low_engith_music = null;
+  boost_music = null;
+  slow_down_music = null;
+  fast_music = null;
 
-      //game control variables
-      game_start = false;
-      car_boost = false;
-      car_in_sand = false;
-      car_in_road = false;
-      car_collide = false;
+  //game control variables
+  game_start = false;
+  car_boost = false;
+  car_in_sand = false;
+  car_in_road = false;
+  car_collide = false;
 
-      //main map color configure
-      DESKTOP_CHROME_SAND_RED = "#e92026";
-      DESKTOP_CHROME_SAND_ORANGE = "#db902e";
-      DESKTOP_CHROME_BLACKAREA = "#000000";
-      DESKTOP_CHROME_GREY = "#5b5d57";
-      DESKTOP_CHROME_FINISH_STEP_ONE = "#d6ce13";
-      DESKTOP_CHROME_FINISH_STEP_TWO = "#2337b0";
-      DESKTOP_CHROME_AI_SEER_LEFT_GREY = "#5b5d57";
-      DESKTOP_CHROME_AI_SEER_LEFT_ORANGE = "#db902e";
-      DESKTOP_CHROME_AI_SEER_RIGHT_DARK = "#000000";
-      DESKTOP_CHROME_AI_SEER_RIGHT_RED = "#e92026";
-      DESKTOP_CHROME_AI_ROAD_SEER_LEFT_GREEN = "#98db2e";
-      DESKTOP_CHROME_AI_ROAD_SEER_RIGHT_BLUE = "#2edbb9";
+  //main map color configure
+  DESKTOP_CHROME_SAND_RED = "#e92026";
+  DESKTOP_CHROME_SAND_ORANGE = "#db902e";
+  DESKTOP_CHROME_BLACKAREA = "#000000";
+  DESKTOP_CHROME_GREY = "#5b5d57";
+  DESKTOP_CHROME_FINISH_STEP_ONE = "#d6ce13";
+  DESKTOP_CHROME_FINISH_STEP_TWO = "#2337b0";
+  DESKTOP_CHROME_AI_SEER_LEFT_GREY = "#5b5d57";
+  DESKTOP_CHROME_AI_SEER_LEFT_ORANGE = "#db902e";
+  DESKTOP_CHROME_AI_SEER_RIGHT_DARK = "#000000";
+  DESKTOP_CHROME_AI_SEER_RIGHT_RED = "#e92026";
+  DESKTOP_CHROME_AI_ROAD_SEER_LEFT_GREEN = "#98db2e";
+  DESKTOP_CHROME_AI_ROAD_SEER_RIGHT_BLUE = "#2edbb9";
 
-      DESKTOP_FIRE_AI_SEER_LEFT = "#ef262c";
+  DESKTOP_FIRE_AI_SEER_LEFT = "#ef262c";
 
-      MOBILE_SAFAFI_SAND = "#e92126";
-      MOBILE_SAFAFI_BLACKAREA= "#000000";
-      MOBILE_SAFAFI_FINISH_STEP_ONE = "#d6ce13";
-      MOBILE_SAFAFI_FINISH_STEP_TWO = "#2337b1";
-      MOBILE_SAFAFI_AI_SEER_LEFT = "#ef272c";
-      MOBILE_SAFAFI_AI_SEER_RIGHT = "#6dbf3f";
+  MOBILE_SAFAFI_SAND = "#e92126";
+  MOBILE_SAFAFI_BLACKAREA= "#000000";
+  MOBILE_SAFAFI_FINISH_STEP_ONE = "#d6ce13";
+  MOBILE_SAFAFI_FINISH_STEP_TWO = "#2337b1";
+  MOBILE_SAFAFI_AI_SEER_LEFT = "#ef272c";
+  MOBILE_SAFAFI_AI_SEER_RIGHT = "#6dbf3f";
 
-      com_car_can_turn = false;
-      ai_cars = [];
+  com_car_can_turn = false;
+  com_car1 = null;
+  com_car2 = null;
+  com_car3 = null;
+  com_car4 = null;
+  com_car5 = null;
+  ai_cars = [];
 
 }
 
 theGame.prototype = {
   	create: function(){
-	 console.log("in game"); 
-      this.game.world.setBounds(0, 0, 3067, 1722);
+	  
+    console.log("in game"); 
+    com_car1 = null;
+    com_car2 = null;
+    com_car3 = null;
+    com_car4 = null;
+    com_car5 = null;
+    game_start = false;
+    this.game.world.setBounds(0, 0, 3067, 1722);
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.gravity.y = 0;
     this.game.physics.p2.restitution = 5;
@@ -105,6 +118,7 @@ theGame.prototype = {
 
     //car things
     car = this.game.add.sprite(1500,450, 'car');
+    car.lap = 0; 
     car.change_status = false;
     car.finish_step_one = false;
     car.finish_step_two = false;
@@ -127,11 +141,16 @@ theGame.prototype = {
     car.body.angle = 90;
     //car things
   
-    var com_car1 = this.game.add.sprite(1350,400, 'ai-car');
+    com_car1 = this.game.add.sprite(1350,400, 'ai-car');
+    com_car1.lap = -1;
     //game.camera.follow(com_car1);
-    var com_car2 = this.game.add.sprite(1240,500, 'ai-car');
-    var com_car3 = this.game.add.sprite(1140,450, 'ai-car');
-    var com_car4 = this.game.add.sprite(1035,450, 'ai-car');
+    com_car2 = this.game.add.sprite(1240,500, 'ai-car');
+    com_car2.lap = -1;
+    com_car3 = this.game.add.sprite(1140,450, 'ai-car');
+    com_car3.lap = -1;
+    com_car4 = this.game.add.sprite(1035,450, 'ai-car');
+    com_car4.lap = -1;
+    
     com_cars.push(com_car1);
     com_cars.push(com_car2);
     com_cars.push(com_car3);
@@ -165,7 +184,7 @@ theGame.prototype = {
           car.change_status = true; 
         }
       } 
-    }, 400);
+    }, 100);
     
   },
   update:function(){
@@ -272,9 +291,27 @@ theGame.prototype = {
     },this); 
   }
   //check if car finish or not
+  $.each(com_cars,function(index,com_car){
+    if(isFinished(com_car,com_car.body.x,com_car.body.y)) {
+      if(com_car.lap == 0) {
+        rankingCounter ++;
+      }
+      com_car.lap ++;
+    }
+  });
+  
+  
   if(isFinished(car,car.body.x,car.body.y)) {
-    alert(this.game.time.totalElapsedSeconds()); 
+    if(car.lap == 0) {
+		  car_racing_rank = rankingCounter + 1;
+      car_racing_time = formatTime(this.game.time.totalElapsedSeconds()); 
+      destroyAiCars(com_cars);
+      this.game.state.start("result");
+    } 
+    car.lap ++; 
   } 
+  
+  
 
   //flush all control variables
   car_boost = false;

@@ -4,30 +4,46 @@
     <meta charset="utf-8">
     <meta name="viewport" content="user-scalable=0, initial-scale=1.0">
     <style>
-    #game {
+      body {
+        background: #000000; 
+      } 
+      #game {
           width: 100%;
           height: 100%;
+          position: relative; 
         }
     @media screen and (min-width: 480px) {
         #game {
-          width: 700px;
-          height: 700px;
-        }   
+          width: 736px;
+          height: 414px;
+        }
+        #name-input {
+          width: 336px;
+          height: 40px;
+          position: absolute;
+          top: 330px;
+          margin-left: 50%;
+          left: -168px;
+        }
     } 
     </style> 
   </head>
   <body style="padding:0; margin:0; overflow:hidden;">
-    <div id="game"></div>
+    <div id="game">
+      <input id="name-input" type="text" style="display: none;"/>
+    </div>
     <script src="vendor/jquery/dist/jquery.min.js"></script>
     <script src="vendor/phaser/build/phaser.min.js"></script>
     <script>
-      
+      var car_racing_time = 0; 
+      var car_racing_rank = 0; 
     </script>
     <script src="utils.js"></script>
     <script src="preload.js"></script>
     <script src="playMission.js"></script>
     <script src="pickPlayer.js"></script>
     <script src="thegame.js"></script>
+    <script src="result.js"></script>
     <script>
 			(function() {
         var WINDOW_WIDTH = $("#game").width();
@@ -39,6 +55,7 @@
 				game.state.add("playMission",playMission);
 				game.state.add("pickPlayer",pickPlayer);
 				game.state.add("theGame",theGame);
+				game.state.add("result",result);
 				game.state.start("Preload");
       })();    
 		</script>

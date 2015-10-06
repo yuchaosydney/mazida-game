@@ -2,6 +2,11 @@ var preload = function(game){}
 
 preload.prototype = {
 	preload: function(){ 
+		this.game.load.image('menu-bg', 'assets/menu_bg.jpg');
+		this.game.load.image('play-mission-btn', 'assets/play-mission-btn.jpg');
+		this.game.load.image('clock', 'assets/clock.png');
+		this.game.load.image('replay', 'assets/replay.png');
+	  this.game.load.spritesheet('star', 'assets/star.png', 66, 65);
 		this.game.load.image('track-hit', 'assets/track-hit.png');
     this.game.load.image('map', 'assets/map.jpg');;
     this.game.load.image('car', 'assets/car.png');
@@ -19,6 +24,5 @@ preload.prototype = {
   	create: function(){
 		
 		this.game.state.start("playMission");
-    console.log("here"); 
   }
 }
