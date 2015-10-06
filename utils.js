@@ -18,11 +18,13 @@ function speedXY (rotation, speed) {
 }
 
 function steerLeft(car){
-    car.body.angle -= car.rotationStep * (car.speed/maxSpeed);
+  //car.body.angularVelocity -= rotate_step;   
+  car.body.angle -= car.rotationStep * (car.speed/maxSpeed);
     car.body.rotationStep = rotate_step;
 }
 
 function steerRight(car){
+  //car.body.angularVelocity = rotate_step;   
     car.body.angle += car.rotationStep * (car.speed/maxSpeed);
     car.body.rotationStep = rotate_step;
 }
@@ -99,7 +101,7 @@ function collisionHandler(car, com_car) {
 }
 
 function initAICars (ai_cars,game,checkGroup) {
-    $.each(ai_cars,function(index,com_car){
+  $.each(ai_cars,function(index,com_car){
         car.control_by_border = false;
         com_car.anchor.setTo(0.5,0.5);
         com_car.rotationStep = rotate_step;

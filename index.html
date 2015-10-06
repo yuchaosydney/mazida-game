@@ -20,7 +20,27 @@
     <div id="game"></div>
     <script src="vendor/jquery/dist/jquery.min.js"></script>
     <script src="vendor/phaser/build/phaser.min.js"></script>
-    <script src="game.js"></script>
+    <script>
+      
+    </script>
     <script src="utils.js"></script>
+    <script src="preload.js"></script>
+    <script src="playMission.js"></script>
+    <script src="pickPlayer.js"></script>
+    <script src="thegame.js"></script>
+    <script>
+			(function() {
+        var WINDOW_WIDTH = $("#game").width();
+        var WINDOW_HEIGHT = $("#game").height();
+        
+        var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{update: this.update});
+      
+				game.state.add("Preload",preload);
+				game.state.add("playMission",playMission);
+				game.state.add("pickPlayer",pickPlayer);
+				game.state.add("theGame",theGame);
+				game.state.start("Preload");
+      })();    
+		</script>
   </body>
 </html>
