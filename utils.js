@@ -100,7 +100,7 @@ function collisionHandler(car, com_car) {
     }
 }
 
-function initAICars (ai_cars,game,checkGroup) {
+function initAICars (ai_cars,game,checkGroup,aiCarCollisionGroup) {
   $.each(ai_cars,function(index,com_car){
         car.control_by_border = false;
         com_car.anchor.setTo(0.5,0.5);
@@ -117,9 +117,19 @@ function initAICars (ai_cars,game,checkGroup) {
 
         com_car.top_left.angle = Math.atan2(com_car.top_left.x - com_car.x,com_car.y - com_car.top_left.y);
         com_car.top_right.angle = Math.atan2(com_car.top_right.x - com_car.x,com_car.y - com_car.top_right.y);
+        com_car.body.setCollisionGroup(aiCarCollisionGroup);
+        com_car.body.collides([aiCarCollisionGroup, playerCollisionGroup]);
         //checkGroup.add(com_car);
         //create counter
     });
+}
+
+function hitAiCars(body1, body2) {
+  if(Math.floor((Math.random() * 2) + 0) == 0) {
+    first_collision_music.play();
+  }else {
+    second_collision_music.play();
+  }
 }
 
 function destroyAiCars(ai_cars) {
@@ -201,15 +211,20 @@ function moveComCars(com_cars) {
         moveCar(com_car);
     });
 }
-function formatTime(time) {
-    var sec_num = parseInt(time, 10); // don't forget the second param
-    var hours   = Math.floor(sec_num / 3600);
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+function formatTime(seconds) {
+  
+  var ms = Math.floor((seconds*1000) % 1000);
+  var s = Math.floor(seconds%60);
+  var m = Math.floor((seconds*1000/(1000*60))%60);
+  var strFormat = "MM:SS:XX";
+  
+  if(s < 10) s = "0" + s;
+  if(m < 10) m = "0" + m;
+  if(ms < 10) ms = "0" + ms;
 
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    if (seconds < 10) {seconds = "0"+seconds;}
-    var time    = hours+':'+minutes+':'+seconds;
-    return time;
+  strFormat = strFormat.replace(/MM/, m);
+  strFormat = strFormat.replace(/SS/, s);
+  strFormat = strFormat.replace(/XX/, ms.toString().slice(0,2));
+  
+  return strFormat; 
 }
