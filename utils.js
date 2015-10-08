@@ -108,7 +108,7 @@ function initAICars (ai_cars,game,checkGroup,aiCarCollisionGroup) {
         com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
         com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
         com_car.speed = com_speed;
-        game.physics.p2.enableBody(com_car,true);
+        game.physics.p2.enableBody(com_car,false);
         com_car.body.clearShapes();
         com_car.body.loadPolygon('carPhysicsData','car');
         com_car.body.sprite = com_car;
@@ -179,20 +179,75 @@ function aiCarControlls(ai_cars) {
             com_car.control_by_border = false;
         }
 
-        if(!com_car.control_by_border && com_car_can_turn) {
+        if(!com_car.control_by_border) {
+          switch(index){
+            case 0:
+              if(first_com_car_can_turn) {
+                com_car.speed = Math.floor(Math.random() * 5) + parseInt(2);
+                if(Math.floor((Math.random() * 2) + 0) == 0) {
+                    //turn left
 
-            com_car.speed = Math.floor((Math.random() * maxSpeed) + normal_speed);
-            if(Math.floor((Math.random() * 2) + 0) == 0) {
-                //turn left
+                    com_car.rotationStep = 16;
+                    steerLeft(com_car);
+                }else {
+                    //turn right
+                    com_car.rotationStep = 16;
+                    steerRight(com_car);
+                }
+                first_com_car_can_turn = false;     
+              }
+             break;
+             case 1:
+              if(second_com_car_can_turn) {
+                com_car.speed = Math.floor(Math.random() * 4) + parseInt(3);
+                if(Math.floor((Math.random() * 2) + 0) == 0) {
+                    //turn left
 
-                com_car.rotationStep = 16;
-                steerLeft(com_car);
-            }else {
-                //turn right
-                com_car.rotationStep = 16;
-                steerRight(com_car);
-            }
-            com_car_can_turn = false;
+                    com_car.rotationStep = 16;
+                    steerLeft(com_car);
+                }else {
+                    //turn right
+                    com_car.rotationStep = 16;
+                    steerRight(com_car);
+                }
+                second_com_car_can_turn = false;     
+              }
+             break;
+           case 2:
+              if(third_com_car_can_turn) {
+                com_car.speed = Math.floor(Math.random() * 3) + parseInt(4);
+                if(Math.floor((Math.random() * 2) + 0) == 0) {
+                    //turn left
+
+                    com_car.rotationStep = 16;
+                    steerLeft(com_car);
+                }else {
+                    //turn right
+                    com_car.rotationStep = 16;
+                    steerRight(com_car);
+                }
+                third_com_car_can_turn = false;     
+              }
+             break;
+           
+           case 3:
+              if(fourth_com_car_can_turn) {
+                com_car.speed = Math.floor(Math.random() * 1) + parseInt(6);
+                if(Math.floor((Math.random() * 2) + 0) == 0) {
+                    //turn left
+
+                    com_car.rotationStep = 16;
+                    steerLeft(com_car);
+                }else {
+                    //turn right
+                    com_car.rotationStep = 16;
+                    steerRight(com_car);
+                }
+                fourth_com_car_can_turn = false;     
+              }
+             break; 
+          }   
+          
         }
         //road turn left and right
         /**hit computer cars**/

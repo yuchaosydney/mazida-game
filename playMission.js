@@ -20,6 +20,7 @@ playMission.prototype = {
 	},
 	nextStep: function(){
     console.log($('#name-input').val());
-		this.game.state.start("theGame");
+		//this.game.state.start("pickPlayer");
+		this.game.state.start("pickPlayer");
 	}
 }

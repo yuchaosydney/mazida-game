@@ -4,8 +4,19 @@ preload.prototype = {
 	preload: function(){ 
 		this.game.load.image('menu-bg', 'assets/menu_bg.jpg');
 		this.game.load.image('play-mission-btn', 'assets/play-mission-btn.jpg');
+		this.game.load.image('play-btn', 'assets/play_button.png');
 		this.game.load.image('clock', 'assets/clock.png');
 		this.game.load.image('replay', 'assets/replay.png');
+		this.game.load.spritesheet('play1', 'assets/Ahmed_29.png', 224, 103,2);
+		this.game.load.spritesheet('play2', 'assets/Hussey_01.png', 224, 103,2);
+		this.game.load.spritesheet('play3', 'assets/Blizzard_10.png', 224, 103,2);
+		this.game.load.spritesheet('play4', 'assets/Khawaja_07.png', 224, 103,2);
+		this.game.load.spritesheet('play5', 'assets/Sandhu_09.png', 224, 103,2);
+		this.game.load.spritesheet('play6', 'assets/Kallis_15.png', 224, 103,2);
+		this.game.load.image('top-bar', 'assets/top_bar.png');
+		this.game.load.image('submitBtn', 'assets/submitBtn.png');
+		this.game.load.spritesheet('traffic-light', 'assets/trafficlight.png', 68, 150,3);
+		this.game.load.spritesheet('players', 'assets/players.png', 142, 156,6);
 	  this.game.load.spritesheet('star', 'assets/star.png', 66, 65);
 		this.game.load.image('track-hit', 'assets/track-hit.png');
     this.game.load.image('map', 'assets/map.jpg');;
@@ -23,6 +34,6 @@ preload.prototype = {
 	},
   	create: function(){
 		
-		this.game.state.start("playMission");
+		this.game.state.start("pickPlayer");
   }
 }

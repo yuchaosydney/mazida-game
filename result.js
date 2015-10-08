@@ -26,14 +26,17 @@ result.prototype = {
         sprite_star_1.frame = 0;
         break;
     } 
-    this.game.add.image(270, 250, 'clock');
 
-    var style_1 = { font: "36px Arial", fill: "#000000", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
-    text = this.game.add.text(310, 250, car_racing_time, style_1);
+    var style_1 = { font: "30px Roboto", fill: "#000000", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
+    text = this.game.add.text(300, 112,"Awesome!", style_1);
+    text.anchor.set(0);
+    
+    text = this.game.add.text(110, 235,"Would you like to be in the Mazda Mission\nDraw for a chance to race on the live track?", style_1);
     text.anchor.set(0);	
 
 
-    var replayButton = this.game.add.button(335,300,"replay",this.replay,this);
+    var replayButton = this.game.add.button(20,20,"replay",this.replay,this);
+    var submitButton = this.game.add.button(240,320,"submitBtn",this.replay,this);
 	},
   replay: function(){
 		this.game.state.start("theGame");
