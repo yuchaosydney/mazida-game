@@ -178,9 +178,9 @@ theGame.prototype = {
     //game.camera.follow(com_car1);
     com_car2 = this.game.add.sprite(1340,500, 'ai-car');
     com_car2.lap = -1;
-    com_car3 = this.game.add.sprite(1340,450, 'ai-car');
+    com_car3 = this.game.add.sprite(1440,400, 'ai-car');
     com_car3.lap = -1;
-    com_car4 = this.game.add.sprite(1335,450, 'ai-car');
+    com_car4 = this.game.add.sprite(1535,500, 'ai-car');
     com_car4.lap = -1;
     
     com_cars.push(com_car1);
