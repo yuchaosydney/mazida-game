@@ -14,8 +14,8 @@ var theGame = function(game){
   TO_RADIANS = Math.PI/180;
   slow_speed = 2.5;
   normal_speed = 4;
-  com_speed = 5;
-  maxSpeed = 5;
+  com_speed = 6;
+  maxSpeed = 6;
   rotate_step = 3;
   traffic_light = null; 
   top_bar = null; 
@@ -59,6 +59,7 @@ var theGame = function(game){
   DESKTOP_CHROME_GREY = "#5b5d57";
   DESKTOP_CHROME_FINISH_STEP_ONE = "#ffec00";
   DESKTOP_CHROME_FINISH_STEP_TWO = "#2337b0";
+  DESKTOP_CHROME_FINISH_STEP_EXTRA = "#e214d1";
   DESKTOP_CHROME_AI_SEER_LEFT_GREY = "#5b5d57";
   DESKTOP_CHROME_AI_SEER_LEFT_ORANGE = "#ff8b00";
   DESKTOP_CHROME_AI_SEER_RIGHT_DARK = "#000000";
@@ -93,6 +94,9 @@ theGame.prototype = {
   	create: function(){
     
     $('#name-input').attr("style","display:none;");
+    $('#pick-up-player').attr("style","display:none;");
+    $('#instructurions').attr("style","display:none;");
+    $('#result').attr("style","display:none;");
     console.log("in game"); 
     com_car1 = null;
     com_car2 = null;
@@ -145,7 +149,9 @@ theGame.prototype = {
     car = this.game.add.sprite(1750,460, 'car');
     car.lap = 0; 
     car.change_status = false;
+    car.steps = [];
     car.finish_step_one = false;
+    car.finish_step_extra = false;
     car.finish_step_two = false;
     car.anchor.setTo(0.5,0.5);
     car.rotationStep = rotate_step;
@@ -167,12 +173,12 @@ theGame.prototype = {
     car.body.setCollisionGroup(playerCollisionGroup);
     //car things
   
-    com_car1 = this.game.add.sprite(1650,400, 'ai-car');
+    com_car1 = this.game.add.sprite(1250,400, 'ai-car');
     com_car1.lap = -1;
     //game.camera.follow(com_car1);
-    com_car2 = this.game.add.sprite(1540,500, 'ai-car');
+    com_car2 = this.game.add.sprite(1340,500, 'ai-car');
     com_car2.lap = -1;
-    com_car3 = this.game.add.sprite(1440,450, 'ai-car');
+    com_car3 = this.game.add.sprite(1340,450, 'ai-car');
     com_car3.lap = -1;
     com_car4 = this.game.add.sprite(1335,450, 'ai-car');
     com_car4.lap = -1;
@@ -200,24 +206,24 @@ theGame.prototype = {
       timer_start = new Date().getTime(); 
     }, 3000);
 
-    checkGroup = this.game.add.group();
-    checkGroup.add(car);
-    checkGroup.add(com_car1);
-    checkGroup.add(com_car2);
-    checkGroup.add(com_car3);
-    checkGroup.add(com_car4);
+    // checkGroup = this.game.add.group();
+    // checkGroup.add(car);
+    // checkGroup.add(com_car1);
+    // checkGroup.add(com_car2);
+    // checkGroup.add(com_car3);
+    // checkGroup.add(com_car4);
 
     
     //light image
     traffic_light = this.game.add.sprite(1925,380, 'traffic-light');
     traffic_light.fixedToCamera = true; 
     traffic_light.cameraOffset.x = this.game.width - 70;
-    traffic_light.cameraOffset.y =  this.game.height- 315;
+    traffic_light.cameraOffset.y =  90;
     //topbar image
     top_bar = this.game.add.sprite(1925,380, 'top-bar');
     top_bar.fixedToCamera = true; 
     top_bar.cameraOffset.x = this.game.width - 310;
-    top_bar.cameraOffset.y =  this.game.height- 400;
+    top_bar.cameraOffset.y =  10;
     
     //timer text 
     var style_big = { font: "36px Roboto", fill: "#0189CF", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
@@ -228,7 +234,7 @@ theGame.prototype = {
     } 
     timer_text.fixedToCamera = true; 
     timer_text.cameraOffset.x = this.game.width - 260;
-    timer_text.cameraOffset.y =  this.game.height- 380;
+    timer_text.cameraOffset.y =  30;
     timer_text.anchor.set(0);
     //timer text 
     
@@ -237,7 +243,7 @@ theGame.prototype = {
     text = this.game.add.text(310, 250, "LAP", style_small);
     text.fixedToCamera = true; 
     text.cameraOffset.x = this.game.width - 117;
-    text.cameraOffset.y =  this.game.height- 366;
+    text.cameraOffset.y =  45;
     text.anchor.set(0);
     //lap text
     
@@ -245,7 +251,7 @@ theGame.prototype = {
     lap_text = this.game.add.text(310, 250, "1/3", style_big);
     lap_text.fixedToCamera = true; 
     lap_text.cameraOffset.x = this.game.width - 75;
-    lap_text.cameraOffset.y =  this.game.height- 378;
+    lap_text.cameraOffset.y = 32;
     lap_text.anchor.set(0);
     //lap number text
     
@@ -257,7 +263,6 @@ theGame.prototype = {
     
     
     //interval control ai cars turn left and right
-    console.log("create"); 
     ai_car_interval = setInterval(function(){
       if(game_start) {
         first_com_car_can_turn = true;
@@ -299,9 +304,9 @@ theGame.prototype = {
   car.body.angularVelocity = 0;
   
   if(isTouching) {
-    if(game.input.pointer1.position.x > (WINDOW_WIDTH/2)) {
+    if(this.game.input.pointer1.position.x > (WINDOW_WIDTH/2)) {
       steerRight(car);
-    }else if(game.input.pointer1.position.x < (WINDOW_WIDTH/2)) {
+    }else if(this.game.input.pointer1.position.x < (WINDOW_WIDTH/2)) {
       steerLeft(car);
     }
   }
@@ -358,7 +363,7 @@ theGame.prototype = {
   //computer cars
   if(game_start)  {
     moveCar(car);
-      moveComCars(com_cars);
+    moveComCars(com_cars);
   } 
   
   //game control sounds
@@ -402,6 +407,8 @@ theGame.prototype = {
   //check if car finish or not
   $.each(com_cars,function(index,com_car){
     if(isFinished(com_car,com_car.body.x,com_car.body.y)) {
+      com_car.finish_step_one = false;
+      com_car.finish_step_two = false;
       if(com_car.lap == total_laps) {
         rankingCounter ++;
       }
@@ -409,8 +416,8 @@ theGame.prototype = {
     }
   });
   
-  
   if(isFinished(car,car.body.x,car.body.y)) {
+         
     if(car.lap == total_laps) {
 		  car_racing_rank = rankingCounter + 1;
       car_racing_time = formatTime((new Date().getTime() - timer_start)); 
@@ -428,6 +435,8 @@ theGame.prototype = {
     } 
     car.lap ++; 
   } 
+  
+ console.log(car.finish_step_one+"---"+car.finish_step_two+"--"+car.finish_step_extra); 
   
   //flush all control variables
   car_boost = false;

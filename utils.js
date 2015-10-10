@@ -57,30 +57,38 @@ function is_touching_device() {
     return isTouching;
 }
 
-function isFinished(car,x,y) {
-
-    if(getRgbByXYMainMap(x,y) == DESKTOP_CHROME_FINISH_STEP_ONE ||
-        getRgbByXYMainMap(x,y) == MOBILE_SAFAFI_FINISH_STEP_ONE) {
-        car.finish_step_one = true;
+function isFinished(fun_car,x,y) {
+    var color =getRgbByXYMainMap(x,y);  
+    
+    if(color == DESKTOP_CHROME_FINISH_STEP_EXTRA) {
+      if(!fun_car.finish_step_one) {
+         fun_car.finish_step_extra = true;
+      } 
     }
 
-    if(getRgbByXYMainMap(x,y) == DESKTOP_CHROME_FINISH_STEP_TWO ||
-        getRgbByXYMainMap(x,y) == MOBILE_SAFAFI_FINISH_STEP_TWO) {
-        if(car.finish_step_one) {
-            car.finish_step_two = true;
+    if(color == DESKTOP_CHROME_FINISH_STEP_ONE ||
+       color == MOBILE_SAFAFI_FINISH_STEP_ONE) {
+        fun_car.finish_step_one = true;
+    }
+
+    if(color == DESKTOP_CHROME_FINISH_STEP_TWO ||
+        color == MOBILE_SAFAFI_FINISH_STEP_TWO) {
+        if(fun_car.finish_step_one) {
+            fun_car.finish_step_two = true;
         }
     }
 
 
-    if(car.finish_step_two && car.finish_step_one) {
-        car.finish_step_one = false;
-        car.finish_step_two = false;
-        return true;
+    if(fun_car.finish_step_two && fun_car.finish_step_one && fun_car.finish_step_extra) {
+      fun_car.finish_step_one = false;
+      fun_car.finish_step_extra = false;
+      fun_car.finish_step_two = false;
+      return true;
     }else {
-        return false;
+        
+      return false;
     }
-
-
+       
 }
 
 $("#game").on("touchstart mousedown",function(e){
@@ -105,6 +113,10 @@ function initAICars (ai_cars,game,checkGroup,aiCarCollisionGroup) {
         car.control_by_border = false;
         com_car.anchor.setTo(0.5,0.5);
         com_car.rotationStep = rotate_step;
+        com_car.steps = [];
+        com_car.finish_step_one = false;
+        com_car.finish_step_extra = false;
+        com_car.finish_step_two = false;
         com_car.top_left = {x:com_car.x,y:com_car.y,angle:0};
         com_car.top_right = {x:com_car.x + car_width,y:com_car.y,angle:0};
         com_car.speed = com_speed;
@@ -183,7 +195,7 @@ function aiCarControlls(ai_cars) {
           switch(index){
             case 0:
               if(first_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 5) + parseInt(2);
+                com_car.speed = Math.floor(Math.random() * 5) + parseInt(5);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -199,7 +211,7 @@ function aiCarControlls(ai_cars) {
              break;
              case 1:
               if(second_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 4) + parseInt(3);
+                com_car.speed = Math.floor(Math.random() * 4) + parseInt(6);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -215,7 +227,7 @@ function aiCarControlls(ai_cars) {
              break;
            case 2:
               if(third_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 3) + parseInt(4);
+                com_car.speed = Math.floor(Math.random() * 2) + parseInt(5);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -232,7 +244,7 @@ function aiCarControlls(ai_cars) {
            
            case 3:
               if(fourth_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 1) + parseInt(6);
+                com_car.speed = Math.floor(Math.random() * 2) + parseInt(7);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 

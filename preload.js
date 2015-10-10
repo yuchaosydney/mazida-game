@@ -3,6 +3,7 @@ var preload = function(game){}
 preload.prototype = {
 	preload: function(){ 
 		this.game.load.image('menu-bg', 'assets/menu_bg.jpg');
+		this.game.load.image('logo', 'assets/logo.png');
 		this.game.load.image('play-mission-btn', 'assets/play-mission-btn.jpg');
 		this.game.load.image('play-btn', 'assets/play_button.png');
 		this.game.load.image('clock', 'assets/clock.png');
@@ -22,7 +23,7 @@ preload.prototype = {
     this.game.load.image('map', 'assets/map.jpg');;
     this.game.load.image('car', 'assets/car.png');
     this.game.load.image('ai-car', 'assets/ai-car.png');
-    this.game.load.audio('bg-musi', ['assets/bg.mp3']);
+    this.game.load.audio('bg-musi', ['assets/bg.mp3','assets/bg.ma4']);
     this.game.load.audio('collision-musi1', ['assets/bump_1.mp3']);
     this.game.load.audio('collision-musi2', ['assets/bump_2.mp3']);
     this.game.load.audio('lights-musi', ['assets/lights.mp3']);
@@ -34,6 +35,7 @@ preload.prototype = {
 	},
   	create: function(){
 		
-		this.game.state.start("pickPlayer");
+		//this.game.state.start("pickPlayer");
+		this.game.state.start("result");
   }
 }
