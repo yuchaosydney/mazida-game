@@ -208,18 +208,29 @@
       from { background-position:    0 0; }
         to { background-position: 0 200%; }
     }
+    
     @media screen and (max-width: 767px) {
       body{
         overflow: scroll !important; 
       } 
       .page-bg {
         height: auto;
-        background-position: right 30px;
-        background-size: 77%;
-        padding-bottom: 30px;
       }
       #pick-up-player .title {
         display: none; 
+      }
+      #pick-up-player .mobile-title {
+        background: #F2F2F2 url('assets/playertitle.png') no-repeat top center; 
+        background-size: contain; 
+        display: block; 
+        height: 58px;
+        margin: 30px;
+      }
+      #pick-up-player .row {
+        margin: 0; 
+      }
+      #pick-up-player .play-btn{
+        margin-top: 30px; 
       }
       #instructurions .title {
         display: none; 
@@ -247,6 +258,14 @@
         background: #F2F2F2 url('assets/mobile-back-home-btn.png') no-repeat top right; 
       }
     }
+    @media screen and (max-width: 400px) {
+      .page-bg {
+        height: auto;
+        background-position: right 30px;
+        background-size: 77%;
+        padding-bottom: 30px;
+      }
+    }
     </style> 
   </head>
   <body style="padding:0; margin:0; overflow:hidden;">
@@ -254,6 +273,7 @@
     <div id="pick-up-player" class="page-bg">
       <div class="title"></div> 
       <div class="container">
+        <div class="mobile-title"></div> 
         <!---row--> 
         <div class="row">
           <div class="col-xs-12 col-sm-4">

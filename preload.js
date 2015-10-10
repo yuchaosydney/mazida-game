@@ -35,7 +35,7 @@ preload.prototype = {
 	},
   	create: function(){
 		
-		//this.game.state.start("pickPlayer");
-		this.game.state.start("result");
+		this.game.state.start("pickPlayer");
+		//this.game.state.start("result");
   }
 }
