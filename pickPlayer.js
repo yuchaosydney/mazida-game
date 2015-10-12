@@ -5,11 +5,15 @@ var pickPlayer = function(game){
 pickPlayer.prototype = {
   	create: function(){
 	  console.log("pick up players...");	
+    memu_click_sound = game.add.audio('menu_click');
+    memu_bg_sound = game.add.audio('menu-musi');
+    memu_bg_sound.play();
     $('#result').attr("style","display:none;");
     $('#pick-up-player').attr("style","display:block;");
     $(".player-btn").each(function(){
     $(this).click(function(e){
       e.preventDefault();
+      memu_click_sound.play();
       $(".player-btn").removeClass("active");
       switch($(this).attr("id")){
         case "player1Button":
@@ -54,7 +58,9 @@ pickPlayer.prototype = {
 	},
   
 	playTheGame: function(){
-      game.state.start("theGame");
+      
+    memu_bg_sound.stop();
+    game.state.start("theGame");
 	}
 }
 

@@ -41,8 +41,10 @@ function car_top_right_point_update(car) {
 
 //return hex color format
 function getRgbByXYMainMap(x,y) {
-    var rgbObj = bitBg.getPixelRGB(Math.round(x), Math.round(y));
-    return Phaser.Color.RGBtoString(rgbObj.r,rgbObj.g,rgbObj.b);
+  //var p = ctx.getImageData(x, y, 1, 1).data;
+   
+  
+  return getHexValue(parseInt(x),parseInt(y));
 }
 
 //function getRgbByXYAIMapFirst(x,y) {
@@ -59,8 +61,7 @@ function is_touching_device() {
 
 function isFinished(fun_car,x,y) {
     var color =getRgbByXYMainMap(x,y);  
-    
-    if(color == DESKTOP_CHROME_FINISH_STEP_EXTRA) {
+    if(color == DESKTOP_CHROME_FINISH_STEP_EXTRA || color == DESKTOP_CHROME_FINISH_STEP_EXTRA || color == DESKTOP_CHROME_AI_SEER_LEFT_PINK) {
       if(!fun_car.finish_step_one) {
          fun_car.finish_step_extra = true;
       } 
@@ -79,6 +80,7 @@ function isFinished(fun_car,x,y) {
     }
 
 
+  console.log(car.finish_step_one+"---"+car.finish_step_two+"--"+car.finish_step_extra); 
     if(fun_car.finish_step_two && fun_car.finish_step_one && fun_car.finish_step_extra) {
       fun_car.finish_step_one = false;
       fun_car.finish_step_extra = false;
@@ -195,7 +197,7 @@ function aiCarControlls(ai_cars) {
           switch(index){
             case 0:
               if(first_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 5) + parseInt(5);
+                com_car.speed = Math.floor(Math.random() * 5) + parseInt(7);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -211,7 +213,7 @@ function aiCarControlls(ai_cars) {
              break;
              case 1:
               if(second_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 4) + parseInt(6);
+                com_car.speed = Math.floor(Math.random() * 4) + parseInt(9);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -227,7 +229,7 @@ function aiCarControlls(ai_cars) {
              break;
            case 2:
               if(third_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 2) + parseInt(5);
+                com_car.speed = Math.floor(Math.random() * 2) + parseInt(7);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -244,7 +246,7 @@ function aiCarControlls(ai_cars) {
            
            case 3:
               if(fourth_com_car_can_turn) {
-                com_car.speed = Math.floor(Math.random() * 2) + parseInt(7);
+                com_car.speed = Math.floor(Math.random() * 1) + parseInt(7);
                 if(Math.floor((Math.random() * 2) + 0) == 0) {
                     //turn left
 
@@ -295,3 +297,18 @@ function formatTime(seconds) {
   
   return strFormat; 
 }
+
+function rgbToHex(r, g, b) {
+    if (r > 255 || g > 255 || b > 255)
+        throw "Invalid color component";
+    return ((r << 16) | (g << 8) | b).toString(16);
+}
+
+function getHexValue(x,y) {
+  var first = parseInt(4*3062*y + 4*x);
+  return ("#" + ("000000" + rgbToHex(imageData[first], imageData[first + 1], imageData[first+2])).slice(-6));
+}
+
+// function getHexValue(p) {
+//   return ("#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6));
+// }

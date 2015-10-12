@@ -12,16 +12,17 @@ var theGame = function(game){
   counter = 0;
   bg = null,ai_bg1 = null,ai_bg2 = null,ai_bg3 = null,ai_bg4 = null,ai_bg5 = null, bitBg = null, ai_bit_bg1 = null,ai_bit_bg2 = null,ai_bit_bg3 = null,ai_bit_bg4 = null,ai_bit_bg5 = null;
   TO_RADIANS = Math.PI/180;
-  slow_speed = 2.5;
+  slow_speed = 4;
   normal_speed = 4;
-  com_speed = 6;
-  maxSpeed = 6;
+  com_speed = 9;
+  maxSpeed = 9;
   rotate_step = 3;
   traffic_light = null; 
   top_bar = null; 
   player_image = null; 
   timer_text = null; 
   lap_text = null; 
+  lap_title_text = null; 
   car = null;
   com_cars = [];
   com_car = null;
@@ -62,6 +63,7 @@ var theGame = function(game){
   DESKTOP_CHROME_FINISH_STEP_EXTRA = "#e214d1";
   DESKTOP_CHROME_AI_SEER_LEFT_GREY = "#5b5d57";
   DESKTOP_CHROME_AI_SEER_LEFT_ORANGE = "#ff8b00";
+  DESKTOP_CHROME_AI_SEER_LEFT_PINK = "#b0236c";
   DESKTOP_CHROME_AI_SEER_RIGHT_DARK = "#000000";
   DESKTOP_CHROME_AI_SEER_RIGHT_RED = "#e92026";
   DESKTOP_CHROME_AI_ROAD_SEER_LEFT_GREEN = "#98db2e";
@@ -92,12 +94,10 @@ var theGame = function(game){
 
 theGame.prototype = {
   	create: function(){
-    
     $('#name-input').attr("style","display:none;");
     $('#pick-up-player').attr("style","display:none;");
     $('#instructurions').attr("style","display:none;");
     $('#result').attr("style","display:none;");
-    console.log("in game"); 
     com_car1 = null;
     com_car2 = null;
     com_car3 = null;
@@ -115,7 +115,7 @@ theGame.prototype = {
     playerCollisionGroup = this.game.physics.p2.createCollisionGroup(); 
     //load bg music 
     bg_music = this.game.add.audio('bg-musi');
-    bg_music.volume = 0.1;
+    bg_music.volume = 0.5;
     bg_music.loop = true;  
     bg_music.play();
     //bg_music.onStop.add(function(sound){sound.volume = 0.1;sound.restart();},this);
@@ -133,21 +133,26 @@ theGame.prototype = {
     
     //speed musics
     low_engith_music = this.game.add.audio('low-engine-musi'); 
-    low_engith_music.volume = 0.25;
+    low_engith_music.volume = 2;
     low_engith_music.loop = true; 
     boost_music = this.game.add.audio('boost-musi'); 
     slow_down_music = this.game.add.audio('slow-down-musi'); 
     fast_music = this.game.add.audio('fast-musi'); 
-    fast_music.volume = 0.25;
+    fast_music.volume = 3;
 
-    bg = this.game.add.image(0, 0, 'track-hit');
-    bitBg = this.game.make.bitmapData();
-    bitBg.load(bg);
+    // bg = this.game.add.image(0, 0, 'track-hit');
+    // bitBg = this.game.make.bitmapData();
+    // bitBg.load(bg);
+    // bitBg.update();
+    
+    // console.log(bitBg.getPixelRGB(1500,800).r); 
+    
     this.game.add.image(0, 0, 'map');
     
+    //alert(bitBg.getPixelRGB(1500,800).r); 
     //car things
-    car = this.game.add.sprite(1750,460, 'car');
-    car.lap = 0; 
+    car = this.game.add.sprite(1650,460, 'car');
+    car.lap = -1; 
     car.change_status = false;
     car.steps = [];
     car.finish_step_one = false;
@@ -226,7 +231,7 @@ theGame.prototype = {
     top_bar.cameraOffset.y =  10;
     
     //timer text 
-    var style_big = { font: "36px Roboto", fill: "#0189CF", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
+    var style_big = { font: "bold 36px Roboto", fontStyle:"italic",fill: "#0189CF", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
     if(game_start) {
       timer_text = this.game.add.text(310, 250, formatTime((new Date().getTime() - timer_start)), style_big );
     }else {
@@ -239,12 +244,12 @@ theGame.prototype = {
     //timer text 
     
     //lap text
-    var style_small = { font: "22px Roboto", fill: "#0189CF", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
-    text = this.game.add.text(310, 250, "LAP", style_small);
-    text.fixedToCamera = true; 
-    text.cameraOffset.x = this.game.width - 117;
-    text.cameraOffset.y =  45;
-    text.anchor.set(0);
+    var style_small = { font: 'bold 22px Roboto',fontStyle:"italic", fill: "#0189CF", wordWrap: true,wordWrap: true, wordWrapWidth: "400px", align: "center" };
+    lap_title_text = this.game.add.text(310, 250, "LAP", style_small);
+    lap_title_text.fixedToCamera = true; 
+    lap_title_text.cameraOffset.x = this.game.width - 117;
+    lap_title_text.cameraOffset.y =  45;
+    lap_title_text.anchor.set(0);
     //lap text
     
     //lap number text
@@ -256,10 +261,9 @@ theGame.prototype = {
     //lap number text
     
     //player image
-    player_image = this.game.add.sprite(1680,290, 'players'); 
+    player_image = this.game.add.sprite(1580,290, 'players'); 
     console.log("which player---" + parseInt(which_player)); 
     player_image.frame = parseInt(which_player - 1);
-    
     
     
     //interval control ai cars turn left and right
@@ -281,10 +285,13 @@ theGame.prototype = {
         }
       } 
     }, 100);
+
+    console.log("in game"); 
     
   },
   update:function(){
-  //update top bar lap number
+    //update top bar lap number
+    lap_title_text.setText("LAP");
     if(car.lap == 0) {
       lap_text.setText("1/3");
     }else if(car.lap == 1) {
@@ -323,9 +330,9 @@ theGame.prototype = {
 
   car_top_left_point_update(car);
   car_top_right_point_update(car);
-    car_top_left_point_update_Aicars(com_cars);
+  car_top_left_point_update_Aicars(com_cars);
 
-  if((getRgbByXYMainMap(car.x,car.y) == DESKTOP_CHROME_SAND_RED || getRgbByXYMainMap(car.x,car.top_right.y) == DESKTOP_CHROME_SAND_ORANGE)) {
+if((getRgbByXYMainMap(car.x,car.y) == DESKTOP_CHROME_SAND_RED || getRgbByXYMainMap(car.x,car.top_right.y) == DESKTOP_CHROME_SAND_ORANGE ||getRgbByXYMainMap(car.x,car.top_right.y) == DESKTOP_CHROME_AI_SEER_LEFT_PINK)) {
     car.speed = slow_speed;
     if(car_in_road) {
       car.change_status = true; 
@@ -356,6 +363,8 @@ theGame.prototype = {
     } 
   }
 
+
+  
   /**hit computer cars**/
   aiCarControlls(com_cars);
     /**hit computer cars**/
@@ -381,7 +390,6 @@ theGame.prototype = {
     // slow_down_music.onStop.add(function(){low_engith_music.play();}); 
   }
   if(car_in_road && car.change_status && game_start && !is_fast_playing) {
-    console.log("here"); 
     slow_down_music.stop();
     low_engith_music.stop();
     //boost_music.play(); 
@@ -407,6 +415,7 @@ theGame.prototype = {
   //check if car finish or not
   $.each(com_cars,function(index,com_car){
     if(isFinished(com_car,com_car.body.x,com_car.body.y)) {
+      
       com_car.finish_step_one = false;
       com_car.finish_step_two = false;
       if(com_car.lap == total_laps) {
@@ -417,9 +426,10 @@ theGame.prototype = {
   });
   
   if(isFinished(car,car.body.x,car.body.y)) {
-         
+    
     if(car.lap == total_laps) {
 		  car_racing_rank = rankingCounter + 1;
+      rankingCounter = 0; 
       car_racing_time = formatTime((new Date().getTime() - timer_start)); 
       destroyAiCars(com_cars);
       
@@ -430,13 +440,14 @@ theGame.prototype = {
       low_engith_music.stop();
       clearInterval(ai_car_interval);
       com_cars = [];
+      car.lap = 0;
+      
+      console.log("lay----" + car.lap); 
       //turn off all souncs
       this.game.state.start("result");
     } 
     car.lap ++; 
   } 
-  
- console.log(car.finish_step_one+"---"+car.finish_step_two+"--"+car.finish_step_extra); 
   
   //flush all control variables
   car_boost = false;
@@ -444,5 +455,6 @@ theGame.prototype = {
   car.change_status = false;
   
   car.body.collides(aiCarCollisionGroup, hitAiCars, this);
+  
   }
 }

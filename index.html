@@ -1,20 +1,27 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Simple Racer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="user-scalable=0, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1, IE=10">
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap/dist/css/bootstrap.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700italic' rel='stylesheet' type='text/css'>
     <style>
+      
       html {
         height: 100%; 
       } 
+      
       body {
         background: #000000; 
-        min-height: 100%; 
+        height: 100%; 
       } 
+      
       #game {
         width: 100%;
         height: 100%;
+        display: block;
         position: relative; 
       }
      
@@ -39,7 +46,9 @@
     #pick-up-player a{
       display: block;
     }
-    
+    #pick-up-player .container{
+      max-width: 764px; 
+    }
     #pick-up-player .row {
       margin-bottom: 15px; 
     }
@@ -89,6 +98,9 @@
     }
     #instructurions {
       display: none; 
+    }
+    #instructurions .container{
+      max-width: 734px; 
     }
     #instructurions .title{
       background: #F2F2F2 url('assets/playertitle.png') no-repeat top right; 
@@ -366,6 +378,8 @@
     <div id="game">
       <input id="name-input" type="text" style="display: none;"/>
     </div>
+    <img id="track-hit" width="3062" height="1723" style="display: none;" src="assets/track-hit.png" alt="The Scream">
+    <canvas id="track-hit-canvas" width="3062" style="display: none;" height="1723" src="assets/track-hit.png" alt="The Scream"></canvas>
     <script src="vendor/jquery/dist/jquery.min.js"></script>
     <script src="vendor/phaser/build/phaser.min.js"></script>
     <script>
@@ -375,6 +389,16 @@
       var WINDOW_WIDTH = $("#game").width();
       var WINDOW_HEIGHT = $("#game").height();
       var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{update: this.update});
+      //game.stage.scale.startFullScreen();
+
+      var track_canvas = document.getElementById("track-hit-canvas"); 
+      var ctx = track_canvas.getContext("2d"); 
+      //var memu_click_sound = game.add.audio('menu_click'); 
+      var img = document.getElementById("track-hit");
+      ctx.drawImage(img, 0, 0);
+      var imageData = ctx.getImageData(0,0, 3062, 1723).data;
+      //var p = ctx.getImageData(1, 1, 1, 1).data;
+
     </script>
     <script src="utils.js"></script>
     <script src="preload.js"></script>
@@ -385,7 +409,6 @@
     <script>
 			(function() {
         
-      
 				game.state.add("Preload",preload);
 				game.state.add("playMission",playMission);
 				game.state.add("pickPlayer",pickPlayer);
