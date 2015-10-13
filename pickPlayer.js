@@ -5,15 +5,27 @@ var pickPlayer = function(game){
 pickPlayer.prototype = {
   	create: function(){
 	  console.log("pick up players...");	
-    memu_click_sound = game.add.audio('menu_click');
-    memu_bg_sound = game.add.audio('menu-musi');
-    memu_bg_sound.play();
+    if(this.game.device.desktop) {
+      memu_click_sound = game.add.audio('menu_click');
+      play1_click_sound = game.add.audio('play_click1');
+      play2_click_sound = game.add.audio('play_click2');
+      memu_bg_sound = game.add.audio('menu-musi');
+      memu_bg_sound.loop = true;
+      memu_bg_sound.stop();
+      
+      memu_bg_sound.play();
+    }
+    
+   
+    
     $('#result').attr("style","display:none;");
     $('#pick-up-player').attr("style","display:block;");
     $(".player-btn").each(function(){
     $(this).click(function(e){
       e.preventDefault();
-      memu_click_sound.play();
+      if(game.device.desktop) {
+        memu_click_sound.play();
+      } 
       $(".player-btn").removeClass("active");
       switch($(this).attr("id")){
         case "player1Button":
@@ -42,6 +54,11 @@ pickPlayer.prototype = {
 
     $("#pick-up-player .play-btn").click(function(e){
         e.preventDefault();
+        
+        if(game.device.desktop) {
+          play1_click_sound.play();
+        }
+        
         if(which_player != 0)  {
           console.log("your picking player----" + which_player);
           $('#instructurions').attr("style","display:block;");
@@ -53,13 +70,18 @@ pickPlayer.prototype = {
     });
     $("#instructurions .play-btn").click(function(e){
         e.preventDefault();
+        if(game.device.desktop) {
+          play2_click_sound.play();
+        }
         pickPlayer.prototype.playTheGame.call();
     });
 	},
   
 	playTheGame: function(){
       
-    memu_bg_sound.stop();
+    if(game.device.desktop) {
+      memu_bg_sound.stop();
+    }
     game.state.start("theGame");
 	}
 }

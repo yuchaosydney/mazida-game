@@ -43,7 +43,6 @@ function car_top_right_point_update(car) {
 function getRgbByXYMainMap(x,y) {
   //var p = ctx.getImageData(x, y, 1, 1).data;
    
-  
   return getHexValue(parseInt(x),parseInt(y));
 }
 
@@ -80,7 +79,7 @@ function isFinished(fun_car,x,y) {
     }
 
 
-  console.log(car.finish_step_one+"---"+car.finish_step_two+"--"+car.finish_step_extra); 
+  //console.log(car.finish_step_one+"---"+car.finish_step_two+"--"+car.finish_step_extra); 
     if(fun_car.finish_step_two && fun_car.finish_step_one && fun_car.finish_step_extra) {
       fun_car.finish_step_one = false;
       fun_car.finish_step_extra = false;
@@ -105,8 +104,9 @@ function collisionHandler(car, com_car) {
     car.speed = 0.5;
     car_collide = true;
     car.change_status = true;
-    if(first_collision_music.onPlay.active) {
-        first_collision_music.play();
+    
+    if(this.game.device.desktop) {
+      collision_music.play();
     }
 }
 
@@ -139,10 +139,9 @@ function initAICars (ai_cars,game,checkGroup,aiCarCollisionGroup) {
 }
 
 function hitAiCars(body1, body2) {
-  if(Math.floor((Math.random() * 2) + 0) == 0) {
-    first_collision_music.play();
-  }else {
-    second_collision_music.play();
+    
+  if(this.game.device.desktop) {
+    collision_music.play();
   }
 }
 
@@ -305,7 +304,8 @@ function rgbToHex(r, g, b) {
 }
 
 function getHexValue(x,y) {
-  var first = parseInt(4*3062*y + 4*x);
+  var first = parseInt(4*2800*y + 4*x);
+  //console.log(imageData[first]);
   return ("#" + ("000000" + rgbToHex(imageData[first], imageData[first + 1], imageData[first+2])).slice(-6));
 }
 

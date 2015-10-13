@@ -14,7 +14,7 @@
       } 
       
       body {
-        background: #000000; 
+        background: #F2F2F2; 
         height: 100%; 
       } 
       
@@ -97,11 +97,14 @@
       margin: 30px;
     }
     #instructurions {
+      height: 100%; 
       display: none; 
     }
+
     #instructurions .container{
       max-width: 734px; 
     }
+
     #instructurions .title{
       background: #F2F2F2 url('assets/playertitle.png') no-repeat top right; 
       display: block; 
@@ -220,15 +223,32 @@
       from { background-position:    0 0; }
         to { background-position: 0 200%; }
     }
-    
+    #mute-btn {
+      background: transparent url('assets/soundswitch.png') no-repeat top center; 
+      background-size: cover; 
+      display: block; 
+      height: 80px;
+      width: 80px;
+      position: absolute;
+      z-index: 99999;
+      right: 30px;
+      bottom: 30px;
+    } 
+    .mute-btn-active {
+      background-position: 0 100% !important; 
+    }
     @media screen and (max-width: 767px) {
       body{
         overflow: scroll !important; 
       } 
+      #mute-btn {
+        display: none; 
+      }
       .page-bg {
         height: auto;
       }
       #pick-up-player .title {
+        
         display: none; 
       }
       #pick-up-player .mobile-title {
@@ -281,8 +301,11 @@
     </style> 
   </head>
   <body style="padding:0; margin:0; overflow:hidden;">
+    <!--mute button--> 
+    <a href="#" id="mute-btn"></a>
+    <!--mute button--> 
     <!--pick up players div--> 
-    <div id="pick-up-player" class="page-bg">
+    <div id="pick-up-player" style="display:none;"  class="page-bg">
       <div class="title"></div> 
       <div class="container">
         <div class="mobile-title"></div> 
@@ -329,7 +352,7 @@
     </div>
     <!--pick up players div--> 
     <!--instructurions div--> 
-    <div id="instructurions" class="page-bg">
+    <div id="instructurions"  style="display:none;" class="page-bg">
       <div class="title"></div> 
       <div class="container">
         <div class="row">
@@ -352,7 +375,7 @@
     </div>
     <!--instructurions div--> 
     <!--result div--> 
-    <div id="result" class="page-bg">
+    <div id="result"  style="display:none;"class="page-bg">
       <div class="back-btn">
         <a href="#"></a> 
       </div> 
@@ -378,8 +401,9 @@
     <div id="game">
       <input id="name-input" type="text" style="display: none;"/>
     </div>
-    <img id="track-hit" width="3062" height="1723" style="display: none;" src="assets/track-hit.png" alt="The Scream">
-    <canvas id="track-hit-canvas" width="3062" style="display: none;" height="1723" src="assets/track-hit.png" alt="The Scream"></canvas>
+    <img id="track-hit" style="display: none;" src="assets/track-hit.png" alt="The Scream">
+    
+    <canvas id="track-hit-canvas" style="display: none;" width="2800" height="1600" alt="The Scream"></canvas>
     <script src="vendor/jquery/dist/jquery.min.js"></script>
     <script src="vendor/phaser/build/phaser.min.js"></script>
     <script>
@@ -389,14 +413,18 @@
       var WINDOW_WIDTH = $("#game").width();
       var WINDOW_HEIGHT = $("#game").height();
       var game = new Phaser.Game(WINDOW_WIDTH, WINDOW_HEIGHT, Phaser.CANVAS, 'game',{update: this.update});
-      //game.stage.scale.startFullScreen();
-
+  
       var track_canvas = document.getElementById("track-hit-canvas"); 
       var ctx = track_canvas.getContext("2d"); 
       //var memu_click_sound = game.add.audio('menu_click'); 
       var img = document.getElementById("track-hit");
-      ctx.drawImage(img, 0, 0);
-      var imageData = ctx.getImageData(0,0, 3062, 1723).data;
+      var imageData = null; 
+      setTimeout(function(){
+        ctx.drawImage(img, 0, 0);
+        imageData = ctx.getImageData(0,0, 2800, 1600).data;
+        console.log(imageData[0]);
+      },3000); 
+       
       //var p = ctx.getImageData(1, 1, 1, 1).data;
 
     </script>
@@ -416,6 +444,19 @@
 				game.state.add("result",result);
 				game.state.start("Preload");
         
+        //mute button click
+        $("#mute-btn").click(function(e){
+            e.preventDefault();
+            if(game.sound.mute) {
+              $(this).removeClass("mute-btn-active");
+              game.sound.mute = false; 
+            }else {
+              $(this).addClass("mute-btn-active");
+              game.sound.mute = true; 
+            } 
+        });
+
+
       })();    
 		</script>
   </body>

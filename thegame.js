@@ -32,7 +32,7 @@ var theGame = function(game){
   car_radius = Math.sqrt((car_width/2)*(car_width/2) + (car_height/2)*(car_height/2));
 
   bg_music = null;
-  first_collision_music = null;
+  collision_music = null;
   second_collision_music = null;
   cheering_music = null;
   light_music = null;
@@ -94,7 +94,12 @@ var theGame = function(game){
 
 theGame.prototype = {
   	create: function(){
-    $('#name-input').attr("style","display:none;");
+     
+    //this.game.scale.startFullScreen();
+    if(this.game.device.desktop) {
+      memu_bg_sound.stop();
+    }
+      $('#name-input').attr("style","display:none;");
     $('#pick-up-player').attr("style","display:none;");
     $('#instructurions').attr("style","display:none;");
     $('#result').attr("style","display:none;");
@@ -104,7 +109,7 @@ theGame.prototype = {
     com_car4 = null;
     com_car5 = null;
     game_start = false;
-    this.game.world.setBounds(0, 0, 3067, 1722);
+    this.game.world.setBounds(0, 0, 2800, 1600);
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.gravity.y = 0;
     this.game.physics.p2.restitution = 5;
@@ -113,37 +118,36 @@ theGame.prototype = {
     this.game.input.addPointer();//for mobile touching
     aiCarCollisionGroup = this.game.physics.p2.createCollisionGroup(); 
     playerCollisionGroup = this.game.physics.p2.createCollisionGroup(); 
-    //load bg music 
-    bg_music = this.game.add.audio('bg-musi');
-    bg_music.volume = 0.5;
-    bg_music.loop = true;  
-    bg_music.play();
-    //bg_music.onStop.add(function(sound){sound.volume = 0.1;sound.restart();},this);
     
-    //collision music
-    first_collision_music = this.game.add.audio('collision-musi1');
-    first_collision_music.volume = 1;
-    second_collision_music = this.game.add.audio('collision-musi2');
-    second_collision_music.volume = 1;
+    if(this.game.device.desktop) {
+      //load bg music 
+      bg_music = this.game.add.audio('bg-musi');
+      bg_music.volume = 1;
+      bg_music.loop = true;  
+      bg_music.play();
+      //bg_music.onStop.add(function(sound){sound.volume = 0.1;sound.restart();},this);
+      
+      //collision music
+      collision_music = this.game.add.audio('collision-musi');
+      collision_music.volume = 1;
+      
+      //cheering music
+      light_music = this.game.add.audio('lights-musi'); 
+      light_music.volume = 1;
+      light_music.play();
+      
+      //speed musics
+      low_engith_music = this.game.add.audio('low-engine-musi'); 
+      low_engith_music.volume = 1;
+      low_engith_music.loop = true; 
+      fast_music = this.game.add.audio('fast-musi'); 
+      fast_music.volume = 1;
+      // bg = this.game.add.image(0, 0, 'track-hit');
+      // bitBg = this.game.make.bitmapData();
+      // bitBg.load(bg);
+      // bitBg.update();
+    }
     
-    //cheering music
-    light_music = this.game.add.audio('lights-musi'); 
-    light_music.volume = 1;
-    light_music.play();
-    
-    //speed musics
-    low_engith_music = this.game.add.audio('low-engine-musi'); 
-    low_engith_music.volume = 2;
-    low_engith_music.loop = true; 
-    boost_music = this.game.add.audio('boost-musi'); 
-    slow_down_music = this.game.add.audio('slow-down-musi'); 
-    fast_music = this.game.add.audio('fast-musi'); 
-    fast_music.volume = 3;
-
-    // bg = this.game.add.image(0, 0, 'track-hit');
-    // bitBg = this.game.make.bitmapData();
-    // bitBg.load(bg);
-    // bitBg.update();
     
     // console.log(bitBg.getPixelRGB(1500,800).r); 
     
@@ -151,7 +155,7 @@ theGame.prototype = {
     
     //alert(bitBg.getPixelRGB(1500,800).r); 
     //car things
-    car = this.game.add.sprite(1650,460, 'car');
+    car = this.game.add.sprite(1500,460, 'car');
     car.lap = -1; 
     car.change_status = false;
     car.steps = [];
@@ -178,14 +182,14 @@ theGame.prototype = {
     car.body.setCollisionGroup(playerCollisionGroup);
     //car things
   
-    com_car1 = this.game.add.sprite(1250,400, 'ai-car');
+    com_car1 = this.game.add.sprite(1100,350, 'ai-car');
     com_car1.lap = -1;
     //game.camera.follow(com_car1);
-    com_car2 = this.game.add.sprite(1340,500, 'ai-car');
+    com_car2 = this.game.add.sprite(1200,450, 'ai-car');
     com_car2.lap = -1;
-    com_car3 = this.game.add.sprite(1440,400, 'ai-car');
+    com_car3 = this.game.add.sprite(1300,350, 'ai-car');
     com_car3.lap = -1;
-    com_car4 = this.game.add.sprite(1535,500, 'ai-car');
+    com_car4 = this.game.add.sprite(1400,450, 'ai-car');
     com_car4.lap = -1;
     
     com_cars.push(com_car1);
@@ -208,6 +212,9 @@ theGame.prototype = {
       player_image.kill();
       traffic_light.kill();
       clearInterval(timer_interval);
+      if(this.game.device.desktop) {
+        fast_music.play();
+      } 
       timer_start = new Date().getTime(); 
     }, 3000);
 
@@ -261,7 +268,8 @@ theGame.prototype = {
     //lap number text
     
     //player image
-    player_image = this.game.add.sprite(1580,290, 'players'); 
+    
+    player_image = this.game.add.sprite(1425,290, 'players'); 
     console.log("which player---" + parseInt(which_player)); 
     player_image.frame = parseInt(which_player - 1);
     
@@ -368,50 +376,54 @@ if((getRgbByXYMainMap(car.x,car.y) == DESKTOP_CHROME_SAND_RED || getRgbByXYMainM
   /**hit computer cars**/
   aiCarControlls(com_cars);
     /**hit computer cars**/
-
-  //computer cars
-  if(game_start)  {
+if(game_start)  {
     moveCar(car);
     moveComCars(com_cars);
-  } 
+  }
+  //computer cars
   
-  //game control sounds
-  if(car_boost && car.change_status) {
-    //fast_music.stop(); 
-    //boost_music.play(); 
-  }
-  if(car_in_sand && car.change_status) {
-    boost_music.stop(); 
-    fast_music.stop(); 
-    is_fast_playing = false;
-    low_engith_music.loop = true;
-    low_engith_music.play();
-    // slow_down_music.play();
-    // slow_down_music.onStop.add(function(){low_engith_music.play();}); 
-  }
-  if(car_in_road && car.change_status && game_start && !is_fast_playing) {
-    slow_down_music.stop();
-    low_engith_music.stop();
-    //boost_music.play(); 
+  if(this.game.device.desktop) {
+     
     
-    fast_music.loop = true; 
-    fast_music.play(); 
-    is_fast_playing = true;
-  }
-  
-  // if(car.speed >= maxSpeed  && car.change_status) {
-  //   boost_music.stop(); 
-  // }
+    //game control sounds
+    if(car_boost && car.change_status) {
+      //fast_music.stop(); 
+      //boost_music.play(); 
+    }
+    if(car_in_sand && car.change_status) {
+      //boost_music.stop(); 
+      fast_music.stop(); 
+      is_fast_playing = false;
+      low_engith_music.loop = true;
+      low_engith_music.play();
+      // slow_down_music.play();
+      // slow_down_music.onStop.add(function(){low_engith_music.play();}); 
+    }
+    if(car_in_road && car.change_status && game_start && !is_fast_playing) {
+      //slow_down_music.stop();
+      low_engith_music.stop();
+      //boost_music.play(); 
+      
+      fast_music.loop = true; 
+      fast_music.play(); 
+      is_fast_playing = true;
+    }
+    
+    // if(car.speed >= maxSpeed  && car.change_status) {
+    //   boost_music.stop(); 
+    // }
 
-  if(car_collide && car.change_status) {
-    // fast_music.stop(); 
-    // slow_down_music.play();
-    
-    // slow_down_music.onStop.add(function(){
-    //   car.change_status = true;
-    //   car_in_road = true; 
-    // },this); 
+    if(car_collide && car.change_status) {
+      // fast_music.stop(); 
+      // slow_down_music.play();
+      
+      // slow_down_music.onStop.add(function(){
+      //   car.change_status = true;
+      //   car_in_road = true; 
+      // },this); 
+    }
   }
+  
   //check if car finish or not
   $.each(com_cars,function(index,com_car){
     if(isFinished(com_car,com_car.body.x,com_car.body.y)) {
@@ -434,10 +446,14 @@ if((getRgbByXYMainMap(car.x,car.y) == DESKTOP_CHROME_SAND_RED || getRgbByXYMainM
       destroyAiCars(com_cars);
       
       //turn off all souncs
-      fast_music.stop(); 
-      bg_music.stop(); 
-      light_music.stop();
-      low_engith_music.stop();
+      
+      if(this.game.device.desktop) {
+        fast_music.stop(); 
+        bg_music.stop(); 
+        light_music.stop();
+        low_engith_music.stop();
+      }
+      
       clearInterval(ai_car_interval);
       com_cars = [];
       car.lap = 0;
