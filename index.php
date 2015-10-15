@@ -225,17 +225,18 @@
     }
     #mute-btn {
       background: transparent url('assets/soundswitch.png') no-repeat top center; 
+      background-position: 0 100%; 
       background-size: cover; 
       display: block; 
-      height: 80px;
-      width: 80px;
+      height: 40px;
+      width: 40px;
       position: absolute;
       z-index: 99999;
       right: 30px;
       bottom: 30px;
     } 
     .mute-btn-active {
-      background-position: 0 100% !important; 
+      background-position: 0 0 !important; 
     }
     @media screen and (max-width: 767px) {
       body{
@@ -364,8 +365,8 @@
             <div class="text"></div>
             <!--mobile turn left and right-->
             <div class="mobile-turn">
-              <img src="assets/mobileleft.png"/> 
-              <img class="turn-right" src="assets/mobileright.png"/> 
+              <img src="assets/mobileleft.png?v=<?php echo time();?>"/> 
+              <img class="turn-right" src="assets/mobileright.png?v=<?php echo time();?>"/> 
             </div>  
             <!--mobile turn left and right-->
           </div> 
@@ -401,11 +402,11 @@
     <div id="game">
       <input id="name-input" type="text" style="display: none;"/>
     </div>
-    <img id="track-hit" style="display: none;" src="assets/track-hit.png" alt="The Scream">
+    <img id="track-hit" style="display: none;" src="assets/track-hit.png?v=<?php echo time();?>" alt="The Scream">
     
     <canvas id="track-hit-canvas" style="display: none;" width="2800" height="1600" alt="The Scream"></canvas>
-    <script src="vendor/jquery/dist/jquery.min.js"></script>
-    <script src="vendor/phaser/build/phaser.min.js"></script>
+    <script src="vendor/jquery/dist/jquery.min.js?v=<?php echo time();?>"></script>
+    <script src="vendor/phaser/build/phaser.min.js?v=<?php echo time();?>"></script>
     <script>
       var car_racing_time = 0; 
       var car_racing_rank = 0; 
@@ -423,17 +424,17 @@
         ctx.drawImage(img, 0, 0);
         imageData = ctx.getImageData(0,0, 2800, 1600).data;
         console.log(imageData[0]);
-      },3000); 
+      },1000); 
        
       //var p = ctx.getImageData(1, 1, 1, 1).data;
 
     </script>
-    <script src="utils.js"></script>
-    <script src="preload.js"></script>
-    <script src="playMission.js"></script>
-    <script src="pickPlayer.js"></script>
-    <script src="thegame.js"></script>
-    <script src="result.js"></script>
+    <script src="utils.js?v=<?php echo time();?>"></script>
+    <script src="preload.js?v=<?php echo time();?>"></script>
+    <script src="playMission.js?v=<?php echo time();?>"></script>
+    <script src="pickPlayer.js?v=<?php echo time();?>"></script>
+    <script src="thegame.js?v=<?php echo time();?>"></script>
+    <script src="result.js?v=<?php echo time();?>"></script>
     <script>
 			(function() {
         
@@ -442,7 +443,7 @@
 				game.state.add("pickPlayer",pickPlayer);
 				game.state.add("theGame",theGame);
 				game.state.add("result",result);
-				game.state.start("Preload");
+				game.state.start("Preload",true,true,null);
         
         //mute button click
         $("#mute-btn").click(function(e){
